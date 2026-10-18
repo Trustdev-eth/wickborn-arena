@@ -1,18 +1,19 @@
 import * as THREE from 'three';
 import {taperedCurve,batchJointSurfaces} from './sculpt.js';
-import {organicGeometry,skinPatchGeometry,bladeGeometry,armorGeometry,membraneGeometry} from './anatomy.js';
+import {organicGeometry,skinPatchGeometry,eyeSurfaceGeometry,bladeGeometry,armorGeometry,membraneGeometry} from './anatomy.js';
+import {surfaceParameters} from './surfaces.js';
 
 // Original sculpted game art. Profiles, silhouettes and accessories follow the
 // stock-creatures atlas; engine IDs, reach, collisions and damage stay untouched.
 export function sculptFighter(id,kit){
  const root=new THREE.Group(),body=new THREE.Group(),materials=[],cache=new Map(),owned=new Set();
- const legs=[],arms=[],wings=[],tails=[],extras=[],eyesRig=[];
+ const legs=[],arms=[],wings=[],tails=[],extras=[],eyesRig=[],secondary=[];
  root.name='creature-'+id;body.name='sculpted-body';root.add(body);
  const joint=(parent,x=0,y=0,z=0,name='')=>{const g=new THREE.Group();g.position.set(x,y,z);g.name=name;parent.add(g);return g;};
  function material(color,kind='skin'){
   const key=color+kind;if(cache.has(key))return cache.get(key);
-  const metal=kind==='metal',glow=kind==='glow',eye=kind==='eye',gel=kind==='gel';
-  const m=new THREE.MeshStandardMaterial({color,vertexColors:!eye,roughness:metal?.34:eye?.18:gel?.24:.64,metalness:metal?.55:0,emissive:glow?color:'#000000',emissiveIntensity:glow?.32:0,side:THREE.FrontSide});
+  const glow=kind==='glow',eye=kind==='eye';
+  const m=new THREE.MeshStandardMaterial({color,vertexColors:!eye,...surfaceParameters(id,kind,kit.surfaces.library),emissive:glow?color:'#000000',emissiveIntensity:glow?.32:0,side:THREE.FrontSide});m.name=kind;
   m.userData.baseGlow=m.emissiveIntensity;m.userData.baseEmissive=m.emissive.clone();materials.push(m);cache.set(key,m);return m;
  }
  function mesh(parent,g,color,kind='skin',pos=[0,0,0],rot=[0,0,0],name=''){
@@ -30,20 +31,23 @@ export function sculptFighter(id,kit){
   return skin(p,c,[[0,x*.08,z*.10],[y*.15,x*.72,z*.68,-z*.06],[y*.40,x,z],[y*.70,x*.90,z*.92,z*.03],[y*.92,x*.54,z*.57],[y,x*.03,z*.04]],pos,[0,0,tilt],kind);
  }
  function skull(p,c,width=.30,height=.53,depth=.26){
-  return skin(p,c,[[-height*.48,.03,.035,depth*.14],[-height*.34,width*.67,depth*.69,depth*.11],[-height*.10,width,depth*.98],[height*.18,width*.95,depth],[height*.40,width*.66,depth*.65,-depth*.04],[height*.51,.025,.02,-depth*.05]]);
+  p.userData.skinColor=c;
+  return skin(p,c,[[-height*.48,.04,.045,depth*.17],[-height*.31,width*.78,depth*.72,depth*.12],[-height*.05,width,depth*.97],[height*.20,width*.89,depth*.96,-depth*.025],[height*.41,width*.62,depth*.62,-depth*.06],[height*.50,.025,.025,-depth*.07]]);
  }
  function muzzle(p,c,width=.23,depth=.20,y=-.10,z=.20){
   return skin(p,c,[[-.12,.035,.035],[-.085,width*.78,depth*.70,depth*.14],[-.015,width,depth],[.075,width*.89,depth*.79],[.115,width*.48,depth*.40]], [0,y,z]);
  }
  function eyes(head,iris='#263b40',spacing=.15,y=.04,z=.25,size=.079,angry=false){
   for(const s of [-1,1]){
-   const eye=joint(head,s*spacing,y,z,'expressive-eye');eye.rotation.y=s*.27;eye.rotation.z=s*(angry?-.16:-.05);
-   ball(eye,'#fff1d1',[0,0,0],[size*1.06,size*1.30,size*.43]);
-   ball(eye,iris,[s*-.012,-.004,size*.34],[size*.69,size*1.02,size*.23]);
-   ball(eye,'#15252b',[s*-.014,-.009,size*.52],[size*.35,size*.75,size*.12]);
-   ball(eye,'#ffffff',[-size*.24,size*.40,size*.63],[size*.22,size*.24,size*.08]);
-   // Almond eyelids sit on the skull; they hide the round sphere edge.
-   line(head,'#24313c',[[s*(spacing-size*.86),y+size*.57,z+.014],[s*spacing,y+size*1.16,z+.034],[s*(spacing+size*.85),y+size*.43,z-.01]],.018,.010);
+   const eye=joint(head,s*spacing,y,z+.002,'expressive-eye');eye.rotation.y=s*.32;eye.rotation.z=s*(angry?-.15:-.04);
+   const w=size*.92,h=size*(id===6?.88:id===11?.96:.71);
+   mesh(eye,eyeSurfaceGeometry(w,h,.006),'#e3dcc5','eye');
+   ball(eye,iris,[-s*size*.045,0,.010],[size*(id===11?.76:.56),size*(id===11?.86:.63),.005]);
+   ball(eye,'#111f23',[-s*size*.045,-.001,.014],[size*.24,size*.47,.003]);
+   ball(eye,'#f5f5df',[-size*.19,size*.24,.018],[size*.105,size*.12,.002]);
+   const lid=head.userData.skinColor||'#38464b';
+   line(eye,lid,[[-w,-.002,-.003],[0,h+.003,-.003],[w,-.002,-.003]],.012,.007);
+   line(eye,lid,[[-w,-.002,-.003],[0,-h,-.003],[w,-.002,-.003]],.009,.005);
    eyesRig.push(eye);
   }
  }
@@ -51,29 +55,30 @@ export function sculptFighter(id,kit){
   const p=joint(head,s*.205,.15,-.04);p.rotation.z=-s*.18;
   blade(p,c,[[0,-.02,0],[s*.025,height*.40,-.025],[s*.06,height*.78,-.03],[s*.08,height,0]],[.06,width,width*.66,.002],.065);
   blade(p,inside,[[0,.05,.056],[s*.024,height*.43,.048],[s*.065,height*.86,.024]],[.025,width*.60,.001],.018);
+  secondary.push({node:p,type:'ear',sign:s,baseX:0,baseY:0,baseZ:-s*.18});
  }
  function fur(p,c,origin,tip,width=.10){
   const mid=origin.map((v,i)=>(v+tip[i])*.5);mid[2]+=.025;
   return blade(p,c,[origin,mid,tip],[width*.65,width,.001],.035);
  }
  function tail(c,points,r=.10,name='tail'){
-  const node=joint(body,0,0,0,name);line(node,c,points,r,.009);tails.push({node,offset:0});return node;
+  const node=joint(body,...points[0],name),art=joint(node,...points[0].map(v=>-v));line(art,c,points,r,.009);tails.push({node,offset:0});return art;
  }
  function claw(p,x,y,z,color='#f2dfb8',size=.04){line(p,color,[[x,y,z],[x,y+.025,z+size*.8],[x,y-.012,z+size*1.8]],size*.55,.002,'metal');}
  function leg(x,z,height,c,width=.10,phase=0,foot=c,claws=true){
-  const hip=joint(body,x,height,z,'hip'),upper=height*.54,lower=height*.55,knee=joint(hip,0,-upper,0,'knee');
-  skin(hip,c,[[-upper-.035,width*.60,width*.64,.015],[-upper*.66,width*.81,width*.85,.005],[-upper*.27,width*1.17,width*1.10,-.025],[.035,width*.89,width*.85,-.01],[.075,.02,.02]], [0,0,0]);
-  skin(knee,c,[[-lower+.015,width*.77,width*.87,.055],[-lower*.64,width*.73,width*.82,.01],[-lower*.25,width*.87,width*.95,-.01],[.045,width*.70,width*.80],[.075,.02,.02]]);
-  skin(knee,foot,[[-lower-.045,.02,.03,.09],[-lower-.025,width*1.13,width*1.38,.095],[-lower+.025,width*1.28,width*1.65,.105],[-lower+.09,width*.87,width*1.07,.07],[-lower+.13,.025,.025,.01]]);
-  if(claws)for(const n of [-1,0,1])claw(knee,n*width*.68,-lower+.01,width*1.58+.065,'#e9d9ad',width*.38);
-  legs.push({hip,knee,upper,lower,height,phase,front:z>=0,side:Math.sign(x)});
+  const hip=joint(body,x,height,z,'hip'),upper=height*.54,lower=height*.55,knee=joint(hip,0,-upper,0,'knee'),ankle=joint(knee,0,-lower,0,'ankle');hip.rotation.order='ZXY';
+  skin(hip,c,[[-upper-.025,width*.69,width*.73,.015],[-upper*.64,width*.87,width*.96,.005],[-upper*.22,width*1.20,width*1.25,-.022],[.035,width*1.22,width*1.18,-.01],[.10,width*.55,width*.60]]);
+  skin(knee,c,[[-lower+.015,width*.69,width*.78,.04],[-lower*.65,width*.72,width*.83,.015],[-lower*.24,width*.85,width*.93,-.018],[.035,width*.72,width*.78],[.07,width*.30,width*.30]]);
+  skin(ankle,foot,[[-.045,.02,.03,.09],[-.025,width*1.13,width*1.38,.095],[.025,width*1.28,width*1.65,.105],[.09,width*.87,width*1.07,.07],[.13,.025,.025,.01]]);
+  if(claws)for(const n of [-1,0,1])claw(ankle,n*width*.68,.01,width*1.58+.065,'#e9d9ad',width*.38);
+  legs.push({hip,knee,ankle,upper,lower,height,phase,front:z>=0,side:Math.sign(x),restX:x,restZ:z});
  }
  function quad(h,c,w=.10,spread=.23,length=.27,foot=c,claws=true){for(const s of [-1,1])for(const front of [-1,1])leg(s*spread,front*length,h,c,w,s===front?0:Math.PI,foot,claws);}
  function pair(h,c,w=.08,spread=.15,foot=c,claws=true){leg(-spread,0,h,c,w,0,foot,claws);leg(spread,0,h,c,w,Math.PI,foot,claws);}
  function arm(s,c,y=.84,length=.40,width=.085){
   const node=joint(body,s*.29,y,.02,'shoulder'),elbow=joint(node,0,-length*.5,0,'elbow');
-  skin(node,c,[[-length*.57,.025,.025],[-length*.45,width*.78,width*.81],[-length*.19,width*1.12,width],[.04,width*.72,width*.75],[.065,.02,.02]]);
-  skin(elbow,c,[[-length*.62,.025,.025,.04],[-length*.49,width*.85,width*.90,.04],[-length*.24,width,width*.87,.015],[.035,width*.72,width*.72]]);
+  skin(node,c,[[-length*.56,width*.45,width*.45],[-length*.41,width*.78,width*.88],[-length*.16,width*1.15,width*1.13],[.04,width*1.05,width],[.075,width*.44,width*.48]]);
+  skin(elbow,c,[[-length*.62,width*.39,width*.41,.04],[-length*.47,width*.66,width*.74,.04],[-length*.22,width*.95,width*.94,.015],[.035,width*.72,width*.72]]);
   const rig={node,elbow,sign:s,base:s*-.12};arms.push(rig);return rig;
  }
  function mouth(head,c,y=-.19,z=.30,width=.10){
@@ -98,7 +103,7 @@ export function sculptFighter(id,kit){
   }
   const sh=shield(armor,'leaf-emblem-shield','#c98d42','#a96c31',[-.35,.81,.37],.87,[0,-.65,-.08]);
   blade(sh,'#e6b75d',[[0,-.15,.15],[-.025,.02,.18],[.04,.20,.15]],[.012,.075,.001],.015,'metal');line(sh,'#ffe3a1',[[0,-.15,.18],[0,.02,.20],[.04,.17,.18]],.008,.003,'metal');
-  head=joint(body,0,1.15,.37);skull(head,light,.29,.53,.27);muzzle(head,'#f2e5bd',.235,.16,-.12,.26);eyes(head,'#25433d',.155,.038,.24,.078);
+  head=joint(body,0,1.065,.45);skull(head,light,.29,.53,.27);muzzle(head,'#f2e5bd',.235,.16,-.12,.26);eyes(head,'#25433d',.155,.038,.24,.078);
   for(const s of [-1,1]){
    line(head,ivory,[[s*.20,.17,-.04],[s*.34,.23,-.065],[s*.39,.42,-.10],[s*.31,.57,-.015]],.095,.003,'metal');
    blade(head,green,[[s*.23,.06,-.03],[s*.35,.12,-.08],[s*.39,.20,-.09]],[.025,.09,.001],.04);
@@ -113,16 +118,16 @@ export function sculptFighter(id,kit){
   quad(.37,dark,.070,.20,.27,cream,false);
   mesh(body,skinPatchGeometry(torso,.40,.92,.88),cream);
   for(const s of [-1,1]){fur(body,red,[s*.10,.84,.25],[s*.26,.62,.37],.11);fur(body,red,[s*.12,.72,-.20],[s*.25,.55,-.29],.085);}
-  head=joint(body,0,1.05,.33);skull(head,dark,.285,.48,.25);
+  head=joint(body,0,.94,.46);skull(head,dark,.285,.48,.25);
   // Narrow swept muzzle, cheek ruff and tall hollow ears make a fox silhouette.
   skin(head,cream,[[0,.15,.085],[.08,.18,.095],[.18,.13,.075],[.28,.055,.035],[.30,.015,.015]], [0,-.075,.11],[Math.PI/2,0,0]);
   skin(head,dark,[[-.06,.035,.04,.31],[-.015,.065,.06,.33],[.025,.035,.03,.34]]);
   for(const s of [-1,1]){ear(head,dark,red,s,.49,.125);fur(head,cream,[s*.17,-.04,.18],[s*.34,-.09,.08],.095);fur(head,dark,[s*.20,-.015,.11],[s*.37,.035,.015],.08);fur(head,red,[s*.05,.17,.22],[s*.18,.04,.25],.05);}
   eyes(head,'#be393b',.145,.047,.224,.078,true);jaw=mouth(head,'#403137',-.155,.28,.095);
-  const t=joint(body,0,0,-.18,'battery-tail');
+  const pivot=joint(body,0,.42,-.33,'battery-tail'),t=joint(pivot,0,-.42,.15);
   skin(t,red,[[.40,.04,.05,-.15],[.62,.12,.11,-.36],[.86,.22,.16,-.53],[1.10,.24,.16,-.57],[1.31,.15,.12,-.68],[1.48,.015,.015,-.85]]);
   for(const s of [-1,1]){fur(t,red,[s*.13,.91,-.49],[s*.34,1.08,-.57],.16);fur(t,red,[s*.10,1.18,-.63],[s*.22,1.37,-.68],.11);}
-  blade(t,dark,[[0,.43,-.13],[0,.66,-.25],[0,.89,-.37],[0,1.03,-.36]],[.02,.10,.15,.001],.052);tails.push({node:t,offset:0});
+  blade(t,dark,[[0,.43,-.13],[0,.66,-.25],[0,.89,-.37],[0,1.03,-.36]],[.02,.10,.15,.001],.052);tails.push({node:pivot,offset:0});
   for(const s of [-1,1]){
    const coil=joint(body,s*.22,.78,.24);coil.rotation.z=-s*.33;
    skin(coil,'#8f9ca6',[[-.16,.04,.04],[-.13,.065,.065],[.13,.065,.065],[.16,.04,.04]], [0,0,0],[0,0,0],'metal');
@@ -152,8 +157,9 @@ export function sculptFighter(id,kit){
   blade(head,'#e7ac37',[[0,-.01,.29],[0,-.045,.39],[0,-.095,.43]],[.09,.065,.001],.037,'metal');jaw=mouth(head,'#a87429',-.108,.355,.062);pair(.20,'#d7a13b',.085,.16,'#d7a13b',false);
   const lens=joint(head,-.14,.048,.286,'lens-monocle');ring(lens,'#d7a842',[0,0,0],[.134,.15,.10]);ring(lens,'#ffe4a0',[0,0,.015],[.115,.13,.07]);line(head,'#bb8b32',[[-.27,.05,.24],[-.31,.01,.12],[-.29,-.08,.05]],.018,.012,'metal');
   // A shaped scarf collar and two flowing cloth tails, rather than a torus.
-  skin(body,red,[[.88,.22,.23,.025],[.925,.29,.29,.025],[.995,.27,.27,.025],[1.025,.20,.20,.025]]);
-  blade(body,red,[[-.20,.96,-.03],[-.40,.90,-.13],[-.50,.69,-.30]],[.08,.12,.075],.026);blade(body,red,[[-.20,.96,-.10],[-.38,1.0,-.29],[-.56,.93,-.38]],[.06,.105,.07],.023);
+  skin(body,red,[[.88,.22,.23,.025],[.925,.29,.29,.025],[.995,.27,.27,.025],[1.025,.20,.20,.025]],[0,0,0],[0,0,0],'cloth');
+  const cloth=joint(body,-.20,.96,-.03,'scarf-tails'),clothArt=joint(cloth,.20,-.96,.03);
+  blade(clothArt,red,[[-.20,.96,-.03],[-.40,.90,-.13],[-.50,.69,-.30]],[.08,.12,.075],.026,'cloth');blade(clothArt,red,[[-.20,.96,-.10],[-.38,1.0,-.29],[-.56,.93,-.38]],[.06,.105,.07],.023,'cloth');secondary.push({node:cloth,type:'cloth',sign:1,baseX:0,baseY:0,baseZ:0});
   plate(head,'#d9aa3c',[[0,.08],[-.08,0],[0,-.06],[.08,0]],.025,[0,.36,-.01],[0,0,-.3]);
   for(const s of [-1,1]){
    const node=joint(body,s*.27,.80,.01),tip=joint(node,s*.045,-.23,0);node.rotation.z=s*.17;
@@ -181,7 +187,7 @@ export function sculptFighter(id,kit){
   plate(body,'#70934d',[[-.22,.17],[0,.07],[.22,.17],[.16,-.07],[0,-.15],[-.16,-.07]],.025,[0,.93,.31],[0,0,0],'metal',.014);
   plate(body,glow,[[0,.17],[-.11,0],[0,-.14],[.11,0]],.045,[0,.83,.37],[0,0,0],'glow',.006);
   pair(.48,dark,.135,.22,dark,false);
-  for(const l of legs){plate(l.hip,green,[[-.12,.07],[.13,.07],[.15,-.13],[0,-.25],[-.13,-.16]],.06,[0,-.10,.11]);plate(l.knee,green,[[-.10,.04],[.12,.04],[.13,-.15],[-.10,-.18]],.075,[0,-.10,.13]);for(const x of [-.07,.02,.10])claw(l.knee,x,-l.lower+.035,.22,trim,.07);}
+  for(const l of legs){plate(l.hip,green,[[-.12,.07],[.13,.07],[.15,-.13],[0,-.25],[-.13,-.16]],.06,[0,-.10,.11]);plate(l.knee,green,[[-.10,.04],[.12,.04],[.13,-.15],[-.10,-.18]],.075,[0,-.10,.13]);for(const x of [-.07,.02,.10])claw(l.ankle,x,.035,.22,trim,.07);}
   head=joint(body,0,1.42,.02);skull(head,dark,.24,.44,.21);
   plate(head,'#426851',[[-.20,.12],[0,.23],[.20,.12],[.17,-.14],[0,-.23],[-.17,-.14]],.07,[0,0,.15],[0,0,0],'metal',.025);
   plate(head,'#172c2b',[[-.19,.045],[0,-.025],[.19,.045],[.15,-.052],[0,-.10],[-.15,-.052]],.012,[0,.035,.243],[0,0,0],'metal',.006);
@@ -201,7 +207,7 @@ export function sculptFighter(id,kit){
   const green='#8ebd76',cream='#eee8cd',red='#c8484b';kind='biped';modelScale=.82;
   skin(body,green,[[.21,.06,.07],[.31,.21,.21],[.55,.24,.22],[.78,.22,.20],[.90,.10,.12]]);pair(.27,green,.075,.16,green,false);
   // Flared coat panels follow a waist and split around the leg articulation.
-  for(const s of [-1,1])plate(body,cream,[[0,.26],[s*.18,.19],[s*.28,-.20],[s*.13,-.29],[0,-.17]],.05,[0,.55,.18],[0,s*.12,0],'skin',.025);
+  for(const s of [-1,1])plate(body,cream,[[0,.26],[s*.18,.19],[s*.28,-.20],[s*.13,-.29],[0,-.17]],.05,[0,.55,.18],[0,s*.12,0],'cloth',.025);
   for(const s of [-1,1])line(body,red,[[s*.05,.81,.24],[s*.13,.59,.27],[s*.25,.34,.25]],.024,.018);
   head=joint(body,0,1.00,.045);skull(head,green,.35,.40,.25);muzzle(head,'#f0e6b7',.29,.12,-.10,.18);
   for(const s of [-1,1])form(head,green,[s*.20,.08,.025],[.115,.24,.13]);eyes(head,'#64502b',.20,.145,.207,.092);jaw=mouth(head,'#526741',-.16,.27,.19);
@@ -223,7 +229,7 @@ export function sculptFighter(id,kit){
   const indigo='#474889',lilac='#9999d0',cyan='#4cc8e6';kind='fly';float=.47;modelScale=.80;
   skin(body,indigo,[[.27,.07,.14,-.09],[.39,.25,.34,-.04],[.66,.29,.37],[.86,.21,.28,.16],[1.13,.16,.16,.25],[1.20,.04,.05,.27]]);quad(.34,indigo,.075,.22,.25,indigo,true);
   for(let n=0;n<5;n++)blade(body,lilac,[[0,.36+n*.10,.28],[0,.40+n*.10,.33],[0,.46+n*.10,.28]],[.06,.18-n*.013,.05],.025);
-  head=joint(body,0,1.14,.33);skull(head,indigo,.265,.45,.25);muzzle(head,lilac,.205,.17,-.08,.24);eyes(head,'#3b6c9c',.14,.045,.231,.074,true);jaw=joint(head,0,-.18,.24);skin(jaw,lilac,[[-.05,.02,.02],[0,.17,.12,.045],[.045,.15,.13,.045],[.07,.02,.02,.04]]);
+  head=joint(body,0,1.04,.46);skull(head,indigo,.265,.45,.25);muzzle(head,lilac,.205,.17,-.08,.24);eyes(head,'#3b6c9c',.14,.045,.231,.074,true);jaw=joint(head,0,-.18,.24);skin(jaw,lilac,[[-.05,.02,.02],[0,.17,.12,.045],[.045,.15,.13,.045],[.07,.02,.02,.04]]);
   for(const s of [-1,1]){
    line(head,lilac,[[s*.14,.17,-.04],[s*.22,.28,-.13],[s*.25,.39,-.25],[s*.15,.48,-.34]],.075,.002);
    for(let n=0;n<3;n++)fur(head,indigo,[s*.18,.12-n*.07,-.02],[s*(.34-n*.025),.20-n*.095,-.15],.085);
@@ -254,7 +260,7 @@ export function sculptFighter(id,kit){
    for(const [x,y]of [[-.13,.16],[.13,.16],[-.11,-.08],[.11,-.08]])ball(a,'#e2bc72',[x,y,.14],[.018,.018,.009],'metal');
    plate(armor,brass,[[-.12,.18],[.14,.18],[.16,-.17],[-.10,-.14]],.07,[s*.28,.95,-.20],[0,s*1.1,0]);
   }
-  head=joint(body,0,1.10,.37);skull(head,blue,.31,.51,.29);muzzle(head,ivory,.24,.18,-.10,.28);eyes(head,'#28394a',.17,.045,.24,.075,true);
+  head=joint(body,0,.98,.46);skull(head,blue,.31,.51,.29);muzzle(head,ivory,.24,.18,-.10,.28);eyes(head,'#28394a',.17,.045,.24,.075,true);
   for(const s of [-1,1])ear(head,blue,'#263852',s,.23,.09);
   line(head,ivory,[[0,-.04,.43],[0,.11,.49],[0,.28,.46],[0,.45,.36]],.105,.002,'metal');
   line(head,brass,[[-.14,.08,.35],[0,.04,.43],[.14,.08,.35]],.022,.016,'metal');jaw=mouth(head,'#5a5c5a',-.23,.37,.12);tail(blue,[[0,.61,-.44],[.11,.59,-.64],[.13,.42,-.74]],.05,'vault-tail');
@@ -331,6 +337,9 @@ export function sculptFighter(id,kit){
   for(let n=0;n<5;n++)blade(body,n%2?light:jade,[[(n-2)*.06,.43,-.24],[(n-2)*.09,.39,-.45],[(n-2)*.13,.30,-.68]],[.02,.09,.001],.025,'skin',[0,1,0]);
  }
 
+ // Adult fighter proportions keep the skull within the shoulders and make
+ // the eyes feel inset instead of attached mascot beads.
+ if(head&&id!==10){const s=id===6?.96:id===5?1:.90;head.scale.set(s,s*.98,s);}
  // Each material is baked per animated joint, never across a knee/wing hinge.
  // Instances share these templates; only their poses and reaction materials vary.
  for(const w of wings){w.node.rotation.z=w.sign*(w.restRoll||0);w.node.rotation.x=w.restPitch||0;}
@@ -338,8 +347,8 @@ export function sculptFighter(id,kit){
  root.traverse(o=>{
   if(!o.isMesh||o.userData.outline||o.material.userData.baseGlow||o.material.roughness<.3)return;
   o.geometry.computeBoundingBox();const v=o.geometry.boundingBox.getSize(new THREE.Vector3()).multiply(o.scale);
-  if(v.x*v.y*v.z>.065){const outline=new THREE.Mesh(o.geometry,kit.outlineMaterial);outline.name='silhouette';outline.userData.outline=true;outline.scale.setScalar(1.018);o.add(outline);}
+  if(v.x*v.y*v.z>.065){const outline=new THREE.Mesh(o.geometry,kit.outlineMaterial);outline.name='silhouette';outline.userData.outline=true;outline.scale.setScalar(1.008);o.add(outline);}
  });
  root.scale.setScalar(modelScale);
- return {id,root,body,head,jaw,eyesRig,legs,wings,tails,arms,extras,materials,owned,kind,float,modelScale,swim:false,phase:0};
+ return {id,root,body,head,jaw,eyesRig,legs,wings,tails,arms,extras,secondary,materials,owned,kind,float,modelScale,swim:false,phase:0};
 }

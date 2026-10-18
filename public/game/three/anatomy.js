@@ -48,6 +48,19 @@ export function skinPatchGeometry(sections,start=.15,end=.88,width=1.05){
  return geometry(p,ix,uv);
 }
 
+// Shallow almond-shaped eye surface. The sclera follows an eyelid contour;
+// it does not project a spherical eyeball outside the skull.
+export function eyeSurfaceGeometry(width,height,depth=.006){
+ const p=[0,0,depth],uv=[.5,.5],ix=[],sides=24,rings=5;
+ for(let i=1;i<=rings;i++)for(let j=0;j<=sides;j++){
+  const r=i/rings,a=j/sides*Math.PI*2,s=Math.sin(a);
+  p.push(Math.cos(a)*width*r,s*Math.abs(s)**.3*height*r,depth*(1-r*r));uv.push(.5+Math.cos(a)*r*.5,.5+s*r*.5);
+  if(i===1&&j<sides)ix.push(0,1+j,2+j);
+  if(i>1&&j<sides){const b=1+(i-2)*(sides+1)+j,n=b+sides+1;ix.push(b,n,n+1,b,n+1,b+1);}
+ }
+ return geometry(p,ix,uv);
+}
+
 // A sculpted feather, fur lock, leaf, flame or pinna with an elliptical section,
 // a real center ridge and tapered root/tip. Paths can bend in all three axes.
 export function bladeGeometry(points,widths,depth=.035,segments=13,faceNormal=[0,0,1]){

@@ -1,8 +1,9 @@
 import {W,H,deploymentZones,canDeployAt} from './engine.js';
 import {CARDS} from './stock-roster.js';
 import {MotionTracker} from './smooth.js';
+import {SPRITE_ART,fitSprite} from './sprite-art.js';
 export function renderer(canvas){
- const ctx=canvas.getContext('2d'),atlas=new Image();atlas.src='/game/stock-creatures.png';let side=0,selected=-1,pointer=null,lastDraw=null;const tracker=new MotionTracker();canvas.width=W;canvas.height=H;
+ const ctx=canvas.getContext('2d'),images=SPRITE_ART.map(src=>{const image=new Image();image.src=src;return image;});let side=0,selected=-1,pointer=null,lastDraw=null;const tracker=new MotionTracker();canvas.width=W;canvas.height=H;
  const bg=document.createElement('canvas');bg.width=W;bg.height=H;const b=bg.getContext('2d');
  const poly=(c,pts,fill,stroke='#283e40',lw=2)=>{c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fillStyle=fill;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=lw;c.stroke();}};
  const rr=(c,x,y,w,h,r,fill,stroke)=>{c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=fill;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=2;c.stroke();}};
@@ -33,8 +34,8 @@ export function renderer(canvas){
   rr(ctx,-33,27,66,8,4,'#344c40');rr(ctx,-31,29,62*Math.max(0,t.hp/t.maxHp),4,2,own?'#4c9be0':'#e1857a');ctx.fillStyle='#30473a';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText(Math.max(0,Math.ceil(t.hp)),0,48);ctx.restore();
  }
  function sprite(id,x,y,size,flip=false){
-  if(!atlas.complete||!atlas.naturalWidth){ctx.fillStyle=CARDS[id].color;ctx.beginPath();ctx.arc(x,y-12,size*.3,0,7);ctx.fill();return;}
-  const sw=atlas.naturalWidth/4,sh=atlas.naturalHeight/3;ctx.save();ctx.translate(x,y);if(flip)ctx.scale(-1,1);ctx.drawImage(atlas,(id%4)*sw,Math.floor(id/4)*sh,sw,sh,-size/2,-size*.84,size,size);ctx.restore();
+  const image=images[id];if(!image?.complete||!image.naturalWidth){ctx.fillStyle=CARDS[id].color;ctx.beginPath();ctx.arc(x,y-12,size*.3,0,7);ctx.fill();return;}
+  const fit=fitSprite(image.naturalWidth,image.naturalHeight,size);ctx.save();ctx.translate(x,y);if(flip)ctx.scale(-1,1);ctx.drawImage(image,-fit.width/2,-size*.84,fit.width,fit.height);ctx.restore();
  }
  function draw(g,options={}){
   side=options.side||0;selected=options.selected??-1;pointer=options.pointer;const vy=y=>side===1?H-y:y;ctx.clearRect(0,0,W,H);ctx.drawImage(bg,0,0);
@@ -47,5 +48,5 @@ export function renderer(canvas){
   }
   if(options.active&&selected>=0&&pointer&&canDeployAt(g,side,pointer.x,side===1?H-pointer.y:pointer.y)){ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(pointer.x,pointer.y,25,12,0,0,7);ctx.stroke();if(g){ctx.globalAlpha=.65;sprite(g.hand[side][selected],pointer.x,pointer.y,64);ctx.globalAlpha=1;}}
  }
- return {draw,sprite,atlas};
+ return {draw,sprite,images};
 }
