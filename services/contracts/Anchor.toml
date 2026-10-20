@@ -6,10 +6,10 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-clashlings = "95knjFtSkTZS6vj7aJgFa5Ty8ArDKZmSnwfGyqAhLZom"
+clashlings = "F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x"
 
 [programs.localnet]
-clashlings = "95knjFtSkTZS6vj7aJgFa5Ty8ArDKZmSnwfGyqAhLZom"
+clashlings = "F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x"
 
 [provider]
 cluster = "devnet"

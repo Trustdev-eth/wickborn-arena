@@ -1,6 +1,8 @@
 import {packPacket} from '../../public/game/wire.js';
 import {verifyToken,verifyService,signedHeaders,sameSiteOrigin} from '../../lib/security.js';
 import {advanceMatch,runCommand,envelope} from '../../lib/match-engine.js';
+import {TacticsAuthority,TACTICS_PROTOCOL} from '../../public/game/tactics/protocol.js';
+const TACTICS_COMMANDS=new Set(['move','hold','skill','ultimate','barrier','deploy','surrender']);
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
 async function site(env,path,data){const body=JSON.stringify(data),options={method:'POST',headers:await signedHeaders(body,env.REALTIME_SHARED_SECRET),body,signal:AbortSignal.timeout(7000)},response=env.SITES?await env.SITES.fetch('https://sites.internal/api/internal/'+path,options):await fetch(new URL('/api/internal/'+path,env.SITE_ORIGIN),options);if(!response.ok)throw new Error('Account service unavailable');return response.json();}
 export default {
@@ -19,34 +21,106 @@ export default {
  }
 };
 export class MatchRoom {
- constructor(ctx,env){this.ctx=ctx;this.env=env;this.room=null;this.serial=Promise.resolve();this.timer=null;this.lastSaved=0;this.ready=ctx.blockConcurrencyWhile(async()=>{this.room=await ctx.storage.get('room')||null;if(this.room?.g.status==='playing')this.schedule();});}
+ constructor(ctx,env){this.ctx=ctx;this.env=env;this.room=null;this.serial=Promise.resolve();this.timer=null;this.lastSaved=0;this.dirty=false;this.persisting=false;this.persistTimer=null;this.marketPending=null;this.marketFrame=null;this.ready=ctx.blockConcurrencyWhile(async()=>{this.room=await ctx.storage.get('room')||null;this.hydrate();if(this.playing())this.schedule();});}
  queue(fn){const next=this.serial.then(fn);this.serial=next.catch(()=>{});return next;}
+ hydrate(){if(this.room?.kind==='skirmish'&&this.room.checkpoint)this.room.authority=TacticsAuthority.restore(this.room.checkpoint);}
+ playing(){return this.room?.kind==='skirmish'?this.room.authority?.game?.status==='playing':this.room?.g?.status==='playing';}
+ serializable(room=this.room){
+  if(!room)return room;
+  if(room.kind==='skirmish'){const {authority,...rest}=room;return {...rest,checkpoint:authority?authority.checkpoint():room.checkpoint,sequence:authority?.sequence??room.sequence};}
+  return room;
+ }
+ hold(promise){if(this.ctx.waitUntil)this.ctx.waitUntil(promise);return promise;}
+ // Live combat stays in memory. SQLite is crash recovery: coalesce writes ~1s after the last mutation.
+ persistSoon(){
+  this.dirty=true;
+  if(this.persisting||this.persistTimer||!this.room)return;
+  const wait=Math.max(0,1000-(Date.now()-this.lastSaved));
+  this.persistTimer=setTimeout(()=>{this.persistTimer=null;this.flush();},wait);
+ }
+ flush(){
+  if(this.persisting||!this.dirty||!this.room)return;
+  this.persisting=true;
+  this.hold(this.queue(async()=>{
+   if(!this.room){this.persisting=false;return;}
+   const stored=this.serializable();this.dirty=false;
+   const run=this.ctx.storage.put('room',stored).then(async()=>{
+    this.lastSaved=Date.now();
+    const playing=stored?.kind==='skirmish'?stored.checkpoint?.game?.status==='playing':stored?.g?.status==='playing';
+    await this.ctx.storage.setAlarm(Date.now()+(playing?5000:30000));
+   }).catch(()=>{this.dirty=true;}).finally(()=>{this.persisting=false;if(this.dirty)this.persistSoon();});
+   this.hold(run);
+  }));
+ }
+ pollMarket(g,elapsed=0){
+  if(!g?.market||g.time+elapsed+1e-6<g.market.nextUpdate)return this.marketFrame;
+  if(!this.marketPending){
+   const pending=site(this.env,'market',{}).then(frame=>{if(frame)this.marketFrame=frame;}).catch(()=>{}).finally(()=>{this.marketPending=null;});
+   this.marketPending=pending;this.hold(pending);
+  }
+  return this.marketFrame;
+ }
+ async finishMatch(state){
+  clearTimeout(this.persistTimer);this.persistTimer=null;this.dirty=false;
+  await this.ctx.storage.put({room:this.serializable(this.room),outbox:{id:this.room.row.id,state,attempts:0}});await this.ctx.storage.setAlarm(Date.now()+1000);clearTimeout(this.timer);this.timer=null;
+ }
  async bootstrap(id){
   if(this.room)return;
   const source=await site(this.env,'bootstrap',{id});if(source.row.transport!=='realtime'||!source.participants?.[0]||!source.participants?.[1])throw new Error('Invalid room bootstrap');
-  const g=typeof source.row.state==='string'?JSON.parse(source.row.state):source.row.state;if(!g?.towers||!['playing','ended'].includes(g.status))throw new Error('Room is not ready');
-  this.room={row:{id:source.row.id,stake:source.row.stake,asset:source.row.asset,transport:'realtime'},participants:source.participants,g,lastTick:source.row.last_tick,sequence:source.row.version||1,createdAt:Date.now()};
+  const parsed=typeof source.row.state==='string'?JSON.parse(source.row.state):source.row.state;
+  const checkpoint=parsed?.checkpoint||null,tactics=source.row.asset==='skirmish'||checkpoint?.game?.ruleset==='wickborn-tactics'||parsed?.ruleset==='wickborn-tactics';
+  if(tactics){
+   const stored=checkpoint||{players:source.participants,game:parsed,sequence:source.row.version||1,accumulator:0,receipts:[[],[]],frame:null};
+   if(!stored.game?.towers||stored.game.ruleset!=='wickborn-tactics'||!['playing','ended'].includes(stored.game.status))throw new Error('Room is not ready');
+   this.room={kind:'skirmish',row:{id:source.row.id,stake:0,asset:'skirmish',transport:'realtime'},participants:source.participants,checkpoint:stored,lastTick:source.row.last_tick,sequence:stored.sequence||source.row.version||1,createdAt:Date.now(),connections:{}};
+   this.hydrate();await this.save();this.schedule();return;
+  }
+  if(!parsed?.towers||!['playing','ended'].includes(parsed.status))throw new Error('Room is not ready');
+  this.room={row:{id:source.row.id,stake:source.row.stake,asset:source.row.asset,transport:'realtime'},participants:source.participants,g:parsed,lastTick:source.row.last_tick,sequence:source.row.version||1,createdAt:Date.now()};
   await this.save();this.schedule();
  }
- async save(candidate=this.room){await this.ctx.storage.put('room',candidate);this.lastSaved=Date.now();await this.ctx.storage.setAlarm(Date.now()+(candidate.g.status==='playing'?5000:30000));}
- schedule(){if(this.timer||this.room?.g.status!=='playing')return;this.timer=setTimeout(()=>{this.timer=null;this.queue(async()=>{await this.advance();this.broadcast();}).catch(()=>{console.warn('Room tick will recover');}).finally(()=>this.schedule());},100);}
+ async save(candidate=this.room){const stored=this.serializable(candidate);await this.ctx.storage.put('room',stored);this.lastSaved=Date.now();this.dirty=false;const playing=stored?.kind==='skirmish'?stored.checkpoint?.game?.status==='playing':stored?.g?.status==='playing';await this.ctx.storage.setAlarm(Date.now()+(playing?5000:30000));}
+ schedule(){if(this.timer||!this.playing())return;this.timer=setTimeout(()=>{this.timer=null;this.queue(async()=>{await this.advance();this.broadcast();}).catch(()=>{console.warn('Room tick will recover');}).finally(()=>this.schedule());},this.room?.kind==='skirmish'?50:100);}
  async advance(){
-  if(!this.room||this.room.g.status!=='playing')return;const now=Date.now(),r=this.room,elapsed=Math.max(0,(now-r.lastTick)/1000);let frame=null;
-  if(r.g.market&&r.g.time+elapsed+1e-6>=r.g.market.nextUpdate){try{frame=await site(this.env,'market',{});}catch{frame=null;}}
-  const ran=advanceMatch(r.g,elapsed,frame);if(ran){r.lastTick+=ran*1000;r.sequence++;}
-  if(r.g.status==='ended'){
-   await this.ctx.storage.put({room:r,outbox:{id:r.row.id,state:r.g,attempts:0}});await this.ctx.storage.setAlarm(now+1000);clearTimeout(this.timer);this.timer=null;
-  }else if(now-this.lastSaved>=1000)await this.save();
+  if(!this.playing())return;
+  if(this.room.kind==='skirmish')return this.advanceSkirmish();
+  const now=Date.now(),r=this.room,elapsed=Math.max(0,(now-r.lastTick)/1000),frame=this.pollMarket(r.g,elapsed);
+  const ran=advanceMatch(r.g,elapsed,frame);if(ran){r.lastTick+=ran*1000;r.sequence++;this.dirty=true;}
+  if(r.g.status==='ended')await this.finishMatch(r.g);
+  else this.persistSoon();
  }
- packet(side,result={ok:true}){return envelope({...this.room.row,version:this.room.sequence},this.room.g,side,result);}
- broadcast(){if(!this.room)return;for(const ws of this.ctx.getWebSockets()){try{const a=ws.deserializeAttachment();ws.send(JSON.stringify(packPacket({type:'snapshot',...this.packet(a.side)})));}catch{try{ws.close(1011,'Reconnect to the room');}catch{}}}}
+ async advanceSkirmish(){
+  const now=Date.now(),r=this.room,elapsed=Math.max(0,(now-r.lastTick)/1000),g=r.authority.game,frame=this.pollMarket(g,elapsed);
+  if(frame)r.authority.setMarket(frame);
+  let remaining=Math.min(8,elapsed);const started=remaining;
+  while(remaining>1e-9&&g.status==='playing'){const step=Math.min(1,remaining);r.authority.advance(step);remaining-=step;}
+  r.lastTick+=(started-remaining)*1000;r.sequence=r.authority.sequence;if(started-remaining>0)this.dirty=true;
+  if(g.status==='ended')await this.finishMatch(g);
+  else this.persistSoon();
+ }
+ packet(side,result={ok:true}){
+  if(this.room.kind==='skirmish'){const snap=this.room.authority.snapshot(this.room.participants[side]);return {...snap,...result,id:this.room.row.id,matchId:this.room.row.id,transport:'realtime',actionId:result.actionId};}
+  return envelope({...this.room.row,version:this.room.sequence},this.room.g,side,result);
+ }
+ wire(packet){return this.room?.kind==='skirmish'?packet:packPacket(packet);}
+ broadcast(){if(!this.room)return;for(const ws of this.ctx.getWebSockets()){try{const a=ws.deserializeAttachment();ws.send(JSON.stringify(this.wire({type:'snapshot',...this.packet(a.side)})));}catch{try{ws.close(1011,'Reconnect to the room');}catch{}}}}
  async command(side,action){
   const prior=this.room.g.commands?.find(c=>c.id===side+':'+action.actionId);if(prior)return {...this.packet(side,prior.result),actionId:action.actionId};
   await this.advance();const candidate=structuredClone(this.room),result=runCommand(candidate.g,side,action);candidate.sequence++;
-  // Persist the complete accepted/rejected command receipt before acknowledging.
-  if(candidate.g.status==='ended'){await this.ctx.storage.put({room:candidate,outbox:{id:candidate.row.id,state:candidate.g,attempts:0}});await this.ctx.storage.setAlarm(Date.now()+1000);}
-  else await this.save(candidate);
-  this.room=candidate;this.broadcast();return {...this.packet(side,result),actionId:action.actionId};
+  this.room=candidate;
+  if(candidate.g.status==='ended')await this.finishMatch(candidate.g);
+  else this.persistSoon();
+  this.broadcast();return {...this.packet(side,result),actionId:action.actionId};
+ }
+ async tacticsCommand(side,action){
+  await this.advance();
+  const packet={protocol:TACTICS_PROTOCOL,actionId:action.actionId,type:action.type};
+  for(const key of ['slot','x','y'])if(action[key]!==undefined)packet[key]=action[key];
+  const result=this.room.authority.receive(this.room.participants[side],packet);
+  this.room.sequence=this.room.authority.sequence;
+  if(this.room.authority.game.status==='ended')await this.finishMatch(this.room.authority.game);
+  else this.persistSoon();
+  this.broadcast();return {...this.packet(side,result),actionId:action.actionId};
  }
  async fetch(request){
   await this.ready;
@@ -59,10 +133,10 @@ export class MatchRoom {
     await this.ctx.storage.put('ticket:'+claims.jti,claims.exp);this.room.connections??={};this.room.connections[claims.side]=claims.jti;await this.save();
     for(const old of this.ctx.getWebSockets('side:'+claims.side)){try{old.close(4001,'A new connection replaced this one');}catch{}}
     const [client,server]=Object.values(new WebSocketPair());this.ctx.acceptWebSocket(server,['side:'+claims.side]);server.serializeAttachment({side:claims.side,player:claims.player,jti:claims.jti,window:Date.now(),count:0});
-    await this.advance();server.send(JSON.stringify(packPacket({type:'snapshot',...this.packet(claims.side)})));this.schedule();return new Response(null,{status:101,webSocket:client});
+    await this.advance();server.send(JSON.stringify(this.wire({type:'snapshot',...this.packet(claims.side)})));this.schedule();return new Response(null,{status:101,webSocket:client});
    }
    const raw=await request.text();if(!await verifyService(request,raw,this.env.REALTIME_SHARED_SECRET))return json({error:'Unauthorized.'},401);const data=JSON.parse(raw),side=this.room.participants.indexOf(data.player);if(side<0||side!==data.side)return json({error:'Not a participant.'},403);
-   if(operation==='command')return json(await this.command(side,data.action));await this.advance();return json(this.packet(side));
+   if(operation==='command')return json(this.room.kind==='skirmish'?await this.tacticsCommand(side,data.action):await this.command(side,data.action));await this.advance();return json(this.packet(side));
   });}catch(error){console.warn('Room request failed');return json({error:'The room is reconnecting. Retry the same command ID.'},503);}
  }
  async webSocketMessage(ws,message){
@@ -70,11 +144,16 @@ export class MatchRoom {
   let data;try{data=JSON.parse(message);}catch{ws.close(1007,'Invalid JSON');return;}
   if(!data||typeof data!=='object'||Array.isArray(data)){ws.close(1007,'Invalid command object');return;}
   const a=ws.deserializeAttachment();if(!a){ws.close(1008,'Not a participant');return;}
-  const now=Date.now();if(now-a.window>=1000){a.window=now;a.count=0;}a.count++;ws.serializeAttachment(a);if(a.count>12){ws.send(JSON.stringify({type:'error',actionId:data.actionId,error:'Too many commands. Wait a moment.',retry:true}));return;}
+  const now=Date.now();if(now-a.window>=1000){a.window=now;a.count=0;}a.count++;ws.serializeAttachment(a);if(a.count>12){ws.send(JSON.stringify({type:'error',protocol:this.room?.kind==='skirmish'?TACTICS_PROTOCOL:undefined,actionId:data.actionId,error:'Too many commands. Wait a moment.',retry:true}));return;}
   // Answered outside the room queue so round-trip time measures the network, not queued ticks.
-  if(data.type==='ping'){ws.send(JSON.stringify({type:'pong',at:Number(data.at)||0}));return;}
+  if(data.type==='ping'){ws.send(JSON.stringify(this.room?.kind==='skirmish'?{type:'pong',at:Number(data.at)||0,protocol:TACTICS_PROTOCOL}:{type:'pong',at:Number(data.at)||0}));return;}
   return this.queue(async()=>{
    if(this.room?.participants[a.side]!==a.player||this.room.connections?.[a.side]!==a.jti){ws.close(1008,'Not a participant');return;}
+   if(this.room.kind==='skirmish'){
+    if(!TACTICS_COMMANDS.has(data.type)||typeof data.actionId!=='string'||!/^[\w-]{8,80}$/.test(data.actionId)){ws.send(JSON.stringify({type:'error',protocol:TACTICS_PROTOCOL,actionId:data.actionId,error:'Invalid command.'}));return;}
+    try{const packet=await this.tacticsCommand(a.side,data);ws.send(JSON.stringify({type:'ack',...packet}));}catch{ws.send(JSON.stringify({type:'error',protocol:TACTICS_PROTOCOL,actionId:data.actionId,error:'The room is recovering. Your command will be retried.',retry:true}));}
+    return;
+   }
    if(!['deploy','surrender'].includes(data.type)||typeof data.actionId!=='string'||!/^[a-zA-Z0-9-]{8,64}$/.test(data.actionId)){ws.send(JSON.stringify({type:'error',actionId:data.actionId,error:'Invalid command.'}));return;}
    try{const packet=await this.command(a.side,data);ws.send(JSON.stringify(packPacket({type:'ack',...packet})));}catch{ws.send(JSON.stringify({type:'error',actionId:data.actionId,error:'The room is recovering. Your command will be retried.',retry:true}));}
   });
@@ -86,7 +165,7 @@ export class MatchRoom {
    await this.advance();this.broadcast();const outbox=await this.ctx.storage.get('outbox');
    if(outbox){try{const result=await site(this.env,'settle',{id:outbox.id,state:outbox.state});if(result.recorded&&result.settled)await this.ctx.storage.delete('outbox');else throw new Error('Settlement pending');}catch{outbox.attempts++;await this.ctx.storage.put('outbox',outbox);await this.ctx.storage.setAlarm(Date.now()+Math.min(60000,1000*2**Math.min(outbox.attempts,6)));return;}}
    const tickets=await this.ctx.storage.list({prefix:'ticket:'}),expired=[];for(const [key,expiry] of tickets)if(expiry<Date.now())expired.push(key);if(expired.length)await this.ctx.storage.delete(expired);
-   if(this.room?.g.status==='playing'){this.schedule();await this.ctx.storage.setAlarm(Date.now()+5000);}
+   if(this.playing()){this.schedule();await this.ctx.storage.setAlarm(Date.now()+5000);}
    else if(this.room&&Date.now()-this.room.createdAt>86400000)await this.ctx.storage.deleteAll();
    else await this.ctx.storage.setAlarm(Date.now()+3600000);
   });

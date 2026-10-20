@@ -51,7 +51,7 @@ export function renderer(canvas){
    if(u.casting){const c=u.casting,ink=u.p===side?'#237fe2':'#d21c49';if(['beam','dash','charge'].includes(c.kind))line(u,{x:c.x,y:c.y},ink,c.kind==='beam'?17:8);else circle(c.x,c.y,c.kind==='boss'?100:c.ultimate?110:75,ink,true);}
   }
   for(const l of g.links){const a=g.units.find(u=>u.id===l.from),b=g.units.find(u=>u.id===l.to);if(a&&b)line(a,b,'#2c9a66',4);}
-  if(options.pointer&&options.aim)circle(options.pointer.x,side===1?H-options.pointer.y:options.pointer.y,options.aim==='move'?13:60,'#6a4f0c');
+  if(options.pointer&&options.aim){ctx.beginPath();ctx.arc(options.pointer.x,options.pointer.y,options.aim==='move'?13:60,0,Math.PI*2);ctx.strokeStyle='#6a4f0c';ctx.lineWidth=3;ctx.stroke();}
  }
  function draw(g,options={}){
   side=options.side||0;selected=options.selected??-1;pointer=options.pointer;const vy=y=>side===1?H-y:y;ctx.clearRect(0,0,W,H);ctx.drawImage(bg,0,0);

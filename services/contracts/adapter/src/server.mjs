@@ -4,6 +4,7 @@ import {verifyService} from '../../../../lib/security.js';
 import {assertUserIntent,decodeMatch,matchHash,payouts} from './logic.mjs';
 import {assembleUserTransaction,cancelInstruction,mintKey,pdas,programId,settleInstruction,userInstruction} from './program.mjs';
 import {accountInfo,connection,latestBlockhash,sendAndConfirm,settlementKeypair} from './rpc.mjs';
+import {notifySiteReceipt,rememberPrepared} from './receipt.mjs';
 import {readPositions,verifyIntent} from './verify.mjs';
 
 export function createAdapter(env=process.env){
@@ -37,7 +38,7 @@ export async function handleAdapterRequest(request,env=process.env){
   if(!await verifyService(request,raw,env.CONTRACT_ADAPTER_KEY))return json(401,{error:'Service authentication required.'});
   const body=JSON.parse(raw);
   if(path==='/v1/prepare')return json(200,await prepare(env,body));
-  if(path==='/v1/verify')return json(200,await verifyIntent(connection(env),env,body));
+  if(path==='/v1/verify')return json(200,await verifyAndNotify(env,body));
   if(path==='/v1/positions')return json(200,await readPositions(connection(env),env,body));
   if(path==='/v1/settle')return json(200,await settle(env,body));
   return json(404,{error:'Unknown adapter route.'});
@@ -56,7 +57,22 @@ async function prepare(env,intent){
  const conn=connection(env);
  if(intent.kind==='refund')await cancelIfFullyLocked(conn,env,intent);
  const blockhash=await latestBlockhash(conn);
- return {intentId:intent.id,transaction:assembleUserTransaction(ix,new PublicKey(intent.wallet),blockhash,env),expiresAt:Math.min(Number(intent.expiresAt)||Date.now()+55000,Date.now()+55000)};
+ const expiresAt=Math.min(Number(intent.expiresAt)||Date.now()+55000,Date.now()+55000);
+ rememberPrepared({...intent,expiresAt},position);
+ return {intentId:intent.id,transaction:assembleUserTransaction(ix,new PublicKey(intent.wallet),blockhash,env),expiresAt};
+}
+
+async function verifyAndNotify(env,body){
+ const result=typeof env.verifyIntent==='function'?await env.verifyIntent(body):await verifyIntent(connection(env),env,body);
+ if(result.finalized===true&&result.success===true&&body.intentId&&body.signature){
+  const posted=notifySiteReceipt(env,body.intentId,body.signature);
+  // Tests inject SITE_FETCH and need the callback before /v1/verify returns.
+  // Production must not await Sites: confirm already holds this request, and a
+  // nested receipt against the same worker would stall.
+  if(typeof env.SITE_FETCH==='function')await posted;
+  else posted.catch(error=>console.warn('contract-receipt',error.message));
+ }
+ return result;
 }
 
 async function cancelIfFullyLocked(conn,env,intent){

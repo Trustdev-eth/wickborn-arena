@@ -32,3 +32,15 @@ test('a real teleport snaps, and renamed predictions keep their motion history',
  u.x=410;tracker.update([u],.2,.15,.016);tracker.rename('p1',9);const moved={...u,id:9,x:420};tracker.update([moved],.3,.2,.016);
  assert.ok(Math.abs(tracker.get(9).x-410)<1e-6,'Interpolation continues across the new id.');assert.equal(tracker.get('p1'),undefined);
 });
+
+test('repeated rebases at the same sim time do not grow per-frame travel',()=>{
+ const tracker=new MotionTracker(),u={id:1,x:100,y:400};
+ tracker.update([u],1,1,.016);
+ const steps=[];let prev=tracker.get(1);
+ for(let n=0;n<30;n++){
+  u.x=100+(n%2?12:-12);
+  tracker.update([u],1,1,.016);
+  const t=tracker.get(1);steps.push(Math.hypot(t.x-prev.x,t.y-prev.y));prev=t;
+ }
+ assert.ok(Math.max(...steps)<3,`largest per-frame move was ${Math.max(...steps).toFixed(1)} px`);
+});

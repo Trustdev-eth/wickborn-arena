@@ -1,0 +1,59 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {TacticsAuthority,TACTICS_PROTOCOL} from '../public/game/tactics/protocol.js';
+import {TacticsPredictor} from '../public/game/tactics/predict.js';
+import {TACTICS_STEP} from '../public/game/tactics/config.js';
+
+const room=()=>new TacticsAuthority({players:['a','b'],initial:{seed:3}});
+const captain=(state,side)=>state.units.find(u=>u.id===state.captains[side]);
+
+test('own captain moves appear before the server acknowledges them',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const cmd={protocol:TACTICS_PROTOCOL,type:'move',x:200,y:500,actionId:'predict-move-0001'};
+ assert.equal(captain(p.state,0).order,null);
+ assert.equal(p.predict(cmd).ok,true);
+ assert.deepEqual(captain(p.state,0).order,{x:200,y:500});
+ assert.equal(captain(server.game,0).order,null);
+});
+
+test('authoritative snapshots rebase prediction and drop acknowledged commands',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const cmd={protocol:TACTICS_PROTOCOL,type:'move',x:210,y:510,actionId:'predict-keep-0001'};
+ assert.equal(p.predict(cmd).ok,true);
+ server.advance(.1);
+ p.receive(server.snapshot('a'),100);
+ assert.deepEqual(captain(p.state,0).order,{x:210,y:510},'In-flight input stays visible until the server acks it.');
+ server.receive('a',cmd);
+ p.receive(server.snapshot('a'),200);
+ assert.equal(p.pending.length,0);
+ assert.deepEqual(captain(p.state,0).order,{x:210,y:510});
+});
+
+test('rebasing an in-flight move does not snap the captain',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const cmd={protocol:TACTICS_PROTOCOL,type:'move',x:200,y:500,actionId:'predict-smooth-0001'};
+ assert.equal(p.predict(cmd).ok,true);
+ p.frame(16);
+ const before=captain(p.state,0);
+ server.advance(TACTICS_STEP);
+ p.receive(server.snapshot('a'),50);
+ const after=captain(p.state,0);
+ assert.equal(after.id,before.id);
+ assert.ok(Math.hypot(after.x-before.x,after.y-before.y)<20,`captain jumped ${Math.hypot(after.x-before.x,after.y-before.y).toFixed(1)}px`);
+});
+
+test('a rejected prediction is removed once its action id is acknowledged',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const cmd={protocol:TACTICS_PROTOCOL,type:'move',x:180,y:500,actionId:'predict-ghost-0001'};
+ assert.equal(p.predict(cmd).ok,true);
+ assert.deepEqual(captain(p.state,0).order,{x:180,y:500});
+ const snap=server.snapshot('a');
+ snap.acks=[cmd.actionId];
+ p.receive(snap,50);
+ assert.equal(p.pending.length,0);
+ assert.equal(captain(p.state,0).order,null);
+});

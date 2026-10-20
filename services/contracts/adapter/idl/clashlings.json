@@ -1,0 +1,161 @@
+{
+  "address": "F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x",
+  "metadata": {
+    "name": "clashlings",
+    "version": "1.0.0",
+    "spec": "0.1.0",
+    "description": "Clashlings arena staking and match-escrow program"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "stake",
+      "discriminator": [
+        206,
+        176,
+        202,
+        18,
+        200,
+        209,
+        179,
+        108
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "unstake",
+      "discriminator": [
+        90,
+        95,
+        107,
+        42,
+        205,
+        124,
+        50,
+        225
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "deposit_escrow",
+      "discriminator": [
+        226,
+        112,
+        158,
+        176,
+        178,
+        118,
+        153,
+        128
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "refund_escrow",
+      "discriminator": [
+        107,
+        186,
+        89,
+        99,
+        26,
+        194,
+        23,
+        204
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "settle",
+      "discriminator": [
+        175,
+        42,
+        185,
+        87,
+        144,
+        131,
+        102,
+        212
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "cancel_match",
+      "discriminator": [
+        142,
+        136,
+        247,
+        45,
+        92,
+        112,
+        180,
+        83
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "set_paused",
+      "discriminator": [
+        91,
+        60,
+        125,
+        192,
+        176,
+        225,
+        166,
+        218
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "set_settlement_authority",
+      "discriminator": [
+        102,
+        3,
+        152,
+        158,
+        128,
+        19,
+        49,
+        61
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "set_lock_seconds",
+      "discriminator": [
+        29,
+        57,
+        27,
+        238,
+        255,
+        239,
+        190,
+        68
+      ],
+      "accounts": [],
+      "args": []
+    }
+  ]
+}

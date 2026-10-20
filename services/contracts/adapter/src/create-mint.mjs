@@ -4,7 +4,8 @@ import {fileURLToPath} from 'node:url';
 import {Keypair} from '@solana/web3.js';
 import {createMint,getOrCreateAssociatedTokenAccount,mintTo} from '@solana/spl-token';
 import {loadAdapterEnv} from './env.mjs';
-import {connection as adapterConnection} from './rpc.mjs';
+import {connection as adapterConnection,resolveKeypairPath} from './rpc.mjs';
+import {writeDevnetEnv} from '../../../../scripts/write-devnet-env.mjs';
 
 loadAdapterEnv();
 
@@ -34,8 +35,7 @@ function loadPayer(){
   if(bytes.length===32)return Keypair.fromSeed(bytes);
   throw new Error('Secret must be a 32-byte seed or 64-byte keypair.');
  }
- const path=process.env.AUTHORITY_KEYPAIR_PATH||process.env.SETTLEMENT_KEYPAIR_PATH;
- if(!path)throw new Error('Set DEVNET_PAYER_SECRET or AUTHORITY_KEYPAIR_PATH.');
+ const path=resolveKeypairPath(process.env.AUTHORITY_KEYPAIR_PATH||process.env.SETTLEMENT_KEYPAIR_PATH||'.dev-keypair.json');
  return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(readFileSync(path,'utf8'))));
 }
 
@@ -58,6 +58,7 @@ await mintTo(conn,payer,mint,ata.address,payer,units,[],{commitment:'confirmed'}
 const keyPath=resolve(fileURLToPath(new URL('../.dev-keypair.json',import.meta.url)));
 writeFileSync(keyPath,JSON.stringify([...payer.secretKey]));
 
+const envFiles=writeDevnetEnv({mint:mint.toBase58(),liveToken:false});
 const result={
  ok:true,
  cluster:'devnet',
@@ -66,6 +67,7 @@ const result={
  ata:ata.address.toBase58(),
  decimals:DECIMALS,
  minted:AMOUNT.toString(),
- keypairPath:keyPath
+ keypairPath:keyPath,
+ env:envFiles
 };
 console.log(JSON.stringify(result,null,2));

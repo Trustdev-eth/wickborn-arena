@@ -22,7 +22,7 @@ programs/clashlings   Anchor program
 adapter/              HMAC adapter: /v1/prepare, /v1/verify, /v1/positions, /v1/settle
 ```
 
-Program id (devnet): `95knjFtSkTZS6vj7aJgFa5Ty8ArDKZmSnwfGyqAhLZom`
+Program id (devnet): `F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x`
 
 ## Build and test the program
 

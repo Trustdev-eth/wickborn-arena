@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {CARDS,TOKENS} from '../public/game/stock-roster.js';
 import {CARDS as ENGINE_CARDS} from '../public/game/engine.js';
 import {TOKENS as PROTOCOL_TOKENS,stakeRequirement} from '../public/game/tokens.js';
+import {quoteMaxAgeMs} from '../public/game/tokens.js';
 import {matchesStockQuote,stockMarketFrame,stockDeckReady,stockVisualState} from '../public/game/stock-market.js';
 const now=1800000000000;
 const quote=(symbol,feedId,price=100)=>({symbol,feedId,price,publishTime:now/1000,status:'live'});
@@ -21,11 +22,15 @@ test('stock presentation preserves every contract-facing ID, staking threshold a
  }
 });
 test('crypto-indexed API responses cannot be presented as stock quotes',()=>{
- const frame=stockMarketFrame({source:'Public',prices:PROTOCOL_TOKENS.map(t=>quote(t.symbol,t.symbol==='NVDA'?'yahoo:NVDA':'coingecko:bitcoin'))},now);
+ const frame=stockMarketFrame({source:'Public',prices:[
+  quote('BTC','coingecko:bitcoin'),quote('SOL','coingecko:solana'),quote('ETH','coingecko:ethereum'),
+  quote('NVDA','yahoo:NVDA')
+ ]},now);
  assert.equal(frame.prices[0].price,null);assert.equal(frame.prices[0].status,'not-connected');assert.equal(frame.prices[5].price,100);assert.equal(frame.prices[5].basis,'underlying-stock');
  assert.equal(stockDeckReady(frame,[0,1,2,3,4,5,7,10]),false);
  assert.equal(matchesStockQuote(quote('AAPLx','yahoo:NVDA'),TOKENS[0]),false);
  assert.equal(matchesStockQuote(quote('AAPLx','coingecko:bitcoin'),TOKENS[0]),false);
+ assert.equal(matchesStockQuote(quote('AAPL','yahoo:AAPL'),TOKENS[0]),true);
 });
 test('matching stock tokens are mapped by symbol rather than response order, with underlying prices distinguished',()=>{
  const frame=stockMarketFrame({prices:TOKENS.map(t=>quote(t.symbol,'coingecko:'+t.productUrl.split('/').pop())).reverse()},now);
@@ -33,9 +38,19 @@ test('matching stock tokens are mapped by symbol rather than response order, wit
  const stock=stockMarketFrame({prices:[quote('NVDA','yahoo:NVDA')]},now);assert.equal(stock.prices[5].basis,'underlying-stock');
 });
 test('old, future, non-finite and missing stock quotes never enable new token matches',()=>{
- for(const row of [null,quote('AAPLx','apple-xstock',NaN),{...quote('AAPLx','apple-xstock'),publishTime:now/1000-901},{...quote('AAPLx','apple-xstock'),publishTime:now/1000+6}]){
+ for(const row of [null,quote('AAPLx','apple-xstock',NaN),{...quote('AAPLx','apple-xstock'),publishTime:now/1000-(quoteMaxAgeMs('Public','equity')/1000)-1},{...quote('AAPLx','apple-xstock'),publishTime:now/1000+6}]){
   const frame=stockMarketFrame({prices:row?[row]:[]},now);assert.equal(stockDeckReady(frame,[0]),false);
  }
+});
+test('last regular-session prints stay connected overnight so the roster can show prices',()=>{
+ const frame=stockMarketFrame({prices:TOKENS.map(t=>({...quote(t.underlying,'yahoo:'+t.underlying),status:'closed-or-stale'}))},now+16*3600000);
+ assert.equal(frame.status,'live');
+ assert.equal(stockDeckReady(frame,[0,1,2,3,4,5,7,10]),true);
+ assert.equal(frame.prices[0].status,'live');
+ assert.equal(frame.prices[0].price,100);
+ const view=stockVisualState({market:{multipliers:Array(12).fill(1.04),status:Array(12).fill('live')}},frame);
+ assert.equal(view.market.status[0],'live');
+ assert.equal(view.market.multipliers[0],1.04);
 });
 test('stock render filtering leaves authoritative snapshots untouched',()=>{
  const state={market:{multipliers:Array(12).fill(1.15),status:Array(12).fill('live'),sequence:3}},before=structuredClone(state),frame=stockMarketFrame({prices:[quote('NVDA','yahoo:NVDA')]},now),view=stockVisualState(state,frame);

@@ -15,7 +15,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("95knjFtSkTZS6vj7aJgFa5Ty8ArDKZmSnwfGyqAhLZom");
+declare_id!("F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x");
 
 #[program]
 pub mod clashlings {

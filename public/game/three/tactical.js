@@ -26,7 +26,7 @@ export function createTacticalLayer(scene){
   for(let i=0;i<g.hazards.length;i++){const h=g.hazards[i];circle('hazard-'+i,h.x,h.y,h.radius,h.p===side?'#81d4e5':'#ff7084',side,.45);circle('hazard-fill-'+i,h.x,h.y,h.radius,h.p===side?'#81d4e5':'#ff7084',side,.08,true);}
   for(const l of g.links){const a=g.units.find(u=>u.id===l.from),b=g.units.find(u=>u.id===l.to);if(a&&b)line('link-'+l.from+'-'+l.to,a,b,'#86edba',side,.035,.85,.8);}
   for(const e of g.effects){const age=g.time-e.at,opacity=Math.max(0,1-age/(e.kind==='ultimate'?1.1:.65));if(e.kind==='beam'||e.kind==='dash')line('effect-'+e.id,{x:e.x,y:e.y},{x:e.tx,y:e.ty},e.color||'#ffe0a0',side,e.kind==='beam'?.15:.08,opacity,.7);if(['ultimate','capture','barrier','skill'].includes(e.kind))circle('effect-ring-'+e.id,e.x,e.y,(e.radius||65)*(.5+age),e.color||'#ffe0a0',side,opacity*.65);}
-  if(pointer&&aim){const u=g.units.find(u=>u.id===g.captains[side]);if(u){circle('aim',pointer.x,pointer.y,aim==='move'?14:aim==='ultimate'?100:60,'#ffe6a5',side,.85);if(aim!=='move')line('aim-line',u,pointer,'#ffe6a5',side,.025,.6);}}
+  if(pointer&&aim){const u=g.units.find(u=>u.id===g.captains[side]);if(u){const vis=p=>side===1?{x:p.x,y:760-p.y}:p;circle('aim',pointer.x,pointer.y,aim==='move'?14:aim==='ultimate'?100:60,'#ffe6a5',0,.85);if(aim!=='move')line('aim-line',vis(u),pointer,'#ffe6a5',0,.025,.6);}}
   for(const [key,e]of pool)if(e.used!==frame){e.mesh.visible=false;if(frame-e.used>180){group.remove(e.mesh);e.mesh.material.dispose();pool.delete(key);}}
  }
  return {draw,get count(){return pool.size;},dispose(){for(const e of pool.values())e.mesh.material.dispose();for(const g of Object.values(geometries))g.dispose();pool.clear();scene.remove(group);}};

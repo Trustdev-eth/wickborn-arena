@@ -10,6 +10,10 @@
     "start": "node src/index.mjs",
     "initialize": "node src/initialize.mjs",
     "create-mint": "node src/create-mint.mjs",
+    "generate-keys": "node src/generate-keys.mjs",
+    "idl": "node src/generate-idl.mjs",
+    "smoke-devnet": "node src/smoke-devnet.mjs",
+    "qualify": "node src/qualify-devnet.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

@@ -38,7 +38,7 @@ export function userInstruction(kind,env,intent){
  const program=programId(env),mint=mintKey(env),wallet=new PublicKey(intent.wallet),vault=vaultSet(program,mint);
  if(kind==='stake'){
   const hash=intentHash(intent.id),[position]=pdas.stake(program,hash),userAta=associatedToken(mint,wallet);
-  const keys=[wallet,vault.config,mint,userAta,vault.vault,vault.vaultAuthority,position,TOKEN_PROGRAM_ID,SystemProgram.programId];
+  const keys=[wallet,vault.config,mint,userAta,vault.vault,vault.vaultAuthority,position,TOKEN_PROGRAM_ID,ASSOCIATED_TOKEN_PROGRAM_ID,SystemProgram.programId];
   return {ix:new TransactionInstruction({programId:program,keys:metas(keys,{signers:[wallet],writable:[wallet,userAta,vault.vault,position]}),data:encodeStakeData({intentHash:hash,amount:intent.amountUnits,card:intent.card,targetLevel:intent.targetLevel})}),position};
  }
  if(kind==='unstake'){
@@ -49,7 +49,7 @@ export function userInstruction(kind,env,intent){
  }
  if(kind==='escrow'){
   const hash=matchHash(intent.matchId),[matchPda]=pdas.match(program,hash),[escrow]=pdas.escrow(program,hash,intent.side),userAta=associatedToken(mint,wallet);
-  const keys=[wallet,vault.config,mint,userAta,vault.vault,vault.vaultAuthority,matchPda,escrow,TOKEN_PROGRAM_ID,SystemProgram.programId];
+  const keys=[wallet,vault.config,mint,userAta,vault.vault,vault.vaultAuthority,matchPda,escrow,TOKEN_PROGRAM_ID,ASSOCIATED_TOKEN_PROGRAM_ID,SystemProgram.programId];
   return {ix:new TransactionInstruction({programId:program,keys:metas(keys,{signers:[wallet],writable:[wallet,userAta,vault.vault,matchPda,escrow]}),data:encodeEscrowData({matchHash:hash,side:intent.side,amount:intent.amountUnits})}),position:escrow};
  }
  if(kind==='refund'){

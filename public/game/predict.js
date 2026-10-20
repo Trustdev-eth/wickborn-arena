@@ -1,23 +1,28 @@
 import {step,deploy,STEP} from './engine.js';
+import {adoptKinematics} from './smooth.js';
 
 // Simulates online matches locally like practice. Authoritative snapshots rebase the simulation and
 // own deploys the server has not processed yet are replayed on top, so input feels instant.
 export class Predictor {
- constructor({side=0,maxAhead=1,maxLead=.3,pendingLife=5}={}){this.side=side;this.maxAhead=maxAhead;this.maxLead=maxLead;this.pendingLife=pendingLife;this.auth=null;this.state=null;this.pending=[];this.samples=[];this.offset=null;this.target=null;this.rtt=.1;this.lastFrame=null;}
+ constructor({side=0,maxAhead=1,maxLead=.3,pendingLife=5}={}){this.side=side;this.maxAhead=maxAhead;this.maxLead=maxLead;this.pendingLife=pendingLife;this.auth=null;this.state=null;this.pending=[];this.samples=[];this.offset=null;this.target=null;this.rtt=.1;this.lastFrame=null;this.lastSequence=-1;}
  setRtt(seconds){if(Number.isFinite(seconds)&&seconds>0)this.rtt=this.rtt*.75+Math.min(1,seconds)*.25;}
  // Server game time is estimated from the least-delayed recent snapshot, then led by one round trip so
  // a command sent now reaches the server at the moment it was predicted locally.
  receive(packet,now=performance.now()){
   const s=packet?.state;if(!s||!Number.isFinite(s.time))return false;if(this.auth&&s.time+1e-9<this.auth.time)return false;
-  const processed=new Set(packet.acks||[]);this.pending=this.pending.filter(c=>!processed.has(c.actionId)&&(this.state?.time??0)-c.at<this.pendingLife);
-  this.auth=structuredClone(s);this.samples.push(s.time-now/1000);this.samples=this.samples.slice(-24);
+  const sequence=packet.sequence??packet.version??Math.round(s.time*1000),processed=new Set(packet.acks||[]);
+  const pending=this.pending.filter(c=>!processed.has(c.actionId)&&(this.state?.time??0)-c.at<this.pendingLife);
+  if(this.lastSequence>=0&&sequence<this.lastSequence)return false;
+  if(this.lastSequence>=0&&sequence===this.lastSequence){if(pending.length===this.pending.length)return false;this.pending=pending;this.rebuild();return true;}
+  this.pending=pending;this.lastSequence=sequence;this.auth=structuredClone(s);this.samples.push(s.time-now/1000);this.samples=this.samples.slice(-24);
   this.target=Math.max(...this.samples)+Math.min(this.maxLead,this.rtt);if(this.offset===null||Math.abs(this.target-this.offset)>.75)this.offset=this.target;
   this.rebuild();return true;
  }
  rebuild(){
-  if(!this.auth)return;const sim=structuredClone(this.auth),goal=Math.min(Math.max(this.state?.time??sim.time,sim.time),sim.time+this.maxAhead),queue=[...this.pending].sort((a,b)=>a.at-b.at);
+  if(!this.auth)return;const prev=this.state,sim=structuredClone(this.auth),goal=Math.min(Math.max(prev?.time??sim.time,sim.time),sim.time+this.maxAhead),queue=[...this.pending].sort((a,b)=>a.at-b.at);
   const replay=()=>{while(queue.length&&queue[0].at<=sim.time+1e-6)this.apply(sim,queue.shift());};
   replay();for(let n=0;sim.status==='playing'&&sim.time+STEP<=goal+1e-6&&n<40;n++){step(sim);replay();}while(queue.length)this.apply(sim,queue.shift());
+  if(this.pending.length&&sim.status==='playing')adoptKinematics(prev,sim);
   this.state=sim;
  }
  frame(now=performance.now()){

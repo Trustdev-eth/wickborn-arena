@@ -13,6 +13,16 @@ export class TacticsAuthority{
   if(initial?.mode==='hunt')throw new Error('This adapter supports two-sided tactical duels.');
   this.players=[...players];this.game=createTactics({...initial,mode:'duel'});this.now=now;this.sequence=0;this.receipts=[new Map(),new Map()];this.rates=[{at:now(),count:0},{at:now(),count:0}];this.accumulator=0;this.frame=initial?.marketFrame||null;
  }
+ static restore({players,game,sequence=0,accumulator=0,receipts=[[],[]],frame=null},now=()=>Date.now()){
+  if(!Array.isArray(players)||players.length!==2||!game)throw new Error('A stored Skirmish authority is required.');
+  const host=Object.create(TacticsAuthority.prototype);
+  host.players=[...players];host.game=game;host.now=now;host.sequence=sequence;host.accumulator=accumulator;
+  host.receipts=[new Map(receipts[0]||[]),new Map(receipts[1]||[])];host.rates=[{at:now(),count:0},{at:now(),count:0}];host.frame=frame||null;
+  return host;
+ }
+ checkpoint(){
+  return {players:[...this.players],game:this.game,sequence:this.sequence,accumulator:this.accumulator,receipts:this.receipts.map(m=>[...m.entries()]),frame:this.frame};
+ }
  receive(authenticatedPlayer,packet){
   const side=this.players.indexOf(authenticatedPlayer);if(side<0)return {ok:false,error:'Player is not a participant.'};
   if(!packet||typeof packet!=='object'||packet.protocol!==TACTICS_PROTOCOL||!commands.has(packet.type)||typeof packet.actionId!=='string'||!/^[\w-]{8,80}$/.test(packet.actionId))return {ok:false,error:'Invalid tactical command envelope.'};
@@ -32,6 +42,6 @@ export class TacticsAuthority{
   const {seed,commands,decks,hand,queue,market,recentEvents,...publicState}=this.game;
   const state={...structuredClone(publicState),decks:decks.map((d,p)=>p===side?[...d]:[]),hand:hand.map((d,p)=>p===side?[...d]:[]),queue:queue.map((d,p)=>p===side?[...d]:[]),market:structuredClone(market)};
   for(const u of state.units)if(u.p!==side)u.order=null;
-  return {protocol:TACTICS_PROTOCOL,version:TACTICS_VERSION,side,sequence:this.sequence,state};
+  return {protocol:TACTICS_PROTOCOL,version:TACTICS_VERSION,side,sequence:this.sequence,state,acks:[...this.receipts[side].keys()].slice(-32)};
  }
 }

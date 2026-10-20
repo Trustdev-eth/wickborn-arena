@@ -1,0 +1,8 @@
+import {CARDS} from './stock-roster.js';
+import {spriteMarkup} from './sprite-art.js';
+const paths={swords:'M4 4l6 2 10 10-4 4L6 10 4 4zm12 0l4 2-4 6-4-4 4-4zM4 20l5-5m11 5l-5-5',cards:'M7 3h12v16H7zM3 7v14h12M10 7h6m-6 4h6m-6 4h4',crown:'M3 6l5 4 4-7 4 7 5-4-3 14H6L3 6z',coin:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm2 5h-4v8h4m-2-9v10',bolt:'M13 2L4 14h7l-1 8 10-12h-7l0-8z',shield:'M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3z',user:'M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM4 21v-3a8 8 0 0 1 16 0v3',rank:'M4 20V12h4v8m2 0V4h4v16m2 0V8h4v12',arrow:'M4 12h16m-7-6l6 6-6 6',plus:'M12 4v16M4 12h16',close:'M5 5l14 14M19 5L5 19',sound:'M3 9h4l6-5v16l-6-5H3V9zm13-2c5 3 5 7 0 10',help:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm-3 6c0-4 7-4 6 0-.3 2-3 2-3 5m0 3v.1',check:'M4 12l5 5L20 6',pause:'M8 5v14M16 5v14',forge:'M5 4l4 4 3-1 8 8-5 5-8-8 1-3-4-4',copy:'M8 8h12v13H8zM4 16V3h12'};
+const icon=(n,cls='')=>`<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[n]||paths.bolt}"/></svg>`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sprite=(id,cls='')=>spriteMarkup(id,CARDS[id].name,cls);
+const card=(c,level=1,cls='',attrs='')=>`<button class="creature-card ${cls}" style="--card-color:${c.color}" ${attrs} aria-label="${c.name}, level ${level}, ${c.cost} elixir"><span class="card-top"><span class="cost">${c.cost}</span><span class="type">${c.symbol}</span></span>${sprite(c.id)}<span class="card-title">${c.name}</span><span class="card-bottom"><span>LV. ${level}</span><span>${c.air?'AIR':'GROUND'}</span></span></button>`;
+export {paths,icon,esc,sprite,card};

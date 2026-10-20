@@ -3,13 +3,33 @@ import assert from 'node:assert/strict';
 import {Keypair,PublicKey} from '@solana/web3.js';
 import {encode58,signedHeaders} from '../../../../lib/security.js';
 import {validateTransactionEnvelope} from '../../../../lib/contracts.js';
+import {ASSOCIATED_TOKEN_PROGRAM_ID} from '@solana/spl-token';
 import {assembleUserTransaction,programId,userInstruction} from '../src/program.mjs';
-import {payouts} from '../src/logic.mjs';
+import {DISCRIMINATORS,payouts} from '../src/logic.mjs';
 import {handleAdapterRequest} from '../src/server.mjs';
 
 const wallet=Keypair.generate(),mint=Keypair.generate();
 const env={GAME_PROGRAM_ID:programId({}).toBase58(),GAME_TOKEN_MINT:mint.publicKey.toBase58(),GAME_TOKEN_DECIMALS:'9'};
 const cfg={mint:env.GAME_TOKEN_MINT,programId:env.GAME_PROGRAM_ID};
+
+test('Anchor instruction discriminators stay pinned to sha256(global:<name>)[0..8]',()=>{
+ const pins={
+  initialize:'afaf6d1f0d989bed',stake:'ceb0ca12c8d1b36c',unstake:'5a5f6b2acd7c32e1',
+  deposit_escrow:'e2709eb0b2769980',refund_escrow:'6bba59631ac217cc',settle:'af2ab957908366d4',
+  cancel_match:'8e88f72d5c70b453',set_paused:'5b3c7dc0b0e1a6da',set_settlement_authority:'6603989e8013313d',
+  set_lock_seconds:'1d391beeffefbe44'
+ };
+ for(const [name,hex] of Object.entries(pins))assert.equal(DISCRIMINATORS[name].toString('hex'),hex,name);
+});
+
+test('stake and escrow account lists include the associated-token program for first-wallet ATA init',()=>{
+ const walletKey=wallet.publicKey.toBase58(),ata=ASSOCIATED_TOKEN_PROGRAM_ID.toBase58();
+ const stake=userInstruction('stake',env,{id:'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',wallet:walletKey,amountUnits:'300000000000',card:0,targetLevel:2});
+ const escrow=userInstruction('escrow',env,{wallet:walletKey,amountUnits:'25000000000',matchId:'6951ff14-0146-44e7-bab2-cc30ce39830c',side:0});
+ assert.equal(stake.ix.keys[6].isWritable,true);
+ assert.ok(stake.ix.keys.some(k=>k.pubkey.toBase58()===ata));
+ assert.ok(escrow.ix.keys.some(k=>k.pubkey.toBase58()===ata));
+});
 
 test('prepared stake, unstake, escrow and refund envelopes pass the game wallet/mint/program guard',()=>{
  const walletKey=wallet.publicKey.toBase58();

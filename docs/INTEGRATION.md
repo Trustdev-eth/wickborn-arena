@@ -18,7 +18,7 @@ Set runtime values with the hosting environment's secret/configuration controls.
 | `GAME_TOKEN_MINT` | Sites config | Owner's SPL game-token mint |
 | `GAME_TOKEN_DECIMALS` | Sites config | Integer 0–12, default 9; use the mint's actual decimals |
 | `GAME_TOKEN_SYMBOL` | Sites config | Game-token display symbol, default `GAME` |
-| `GAME_PROGRAM_ID` | Sites config | Arena staking/escrow program (`95knjFtSkTZS6vj7aJgFa5Ty8ArDKZmSnwfGyqAhLZom` on the current devnet deploy) |
+| `GAME_PROGRAM_ID` | Sites config | Arena staking/escrow program (`F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x` on the current devnet deploy) |
 | `GAME_TOKEN_CHAIN` | Sites config | Wallet Standard chain, default `solana:mainnet`; use `solana:devnet` or `solana:localnet` when testing |
 | `CONTRACT_ADAPTER_URL` | Sites config | Adapter origin. HTTPS in production; `http://127.0.0.1:8788` is allowed locally (same rule as `REALTIME_URL`) |
 | `CONTRACT_ADAPTER_KEY` | Sites secret + adapter secret | Shared server-only HMAC key for adapter requests/callbacks |

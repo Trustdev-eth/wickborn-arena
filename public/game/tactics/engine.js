@@ -1,6 +1,7 @@
 import {newGame,canDeployAt,deploymentZones,validDeck} from '../engine.js';
 import {TOKENS} from '../stock-roster.js';
 import {matchesStockQuote} from '../stock-market.js';
+import {quoteConnected,quoteMaxAgeMs} from '../tokens.js';
 import {TACTICS_VERSION,TACTICS_STEP,TACTICS_ROUND,MARKET_PULSE,STARTER_SQUAD,TACTICAL_FIGHTERS,fighterStats} from './config.js';
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -248,13 +249,13 @@ export function companionBot(g,dt=TACTICS_STEP){
  // The offline hunt explicitly uses an AI companion, never an invented human.
  if(g.units.length<68){spawn(g,2,0,135,500,{companion:true});spawn(g,6,0,165,545,{companion:true});announce(g,'Sage’s support squad has arrived.',0);}
 }
-function quoteFor(frame,id){return frame?.prices?.find(q=>matchesStockQuote(q,TOKENS[id])&&q.status==='live')||null;}
-function snapshotBaseline(g,frame){for(let id=0;id<12;id++){const q=quoteFor(frame,id);if(q&&q.publishTime*1000<=g.startedAt+5000&&g.startedAt-q.publishTime*1000<=900000){g.market.baseline[id]={price:q.price,feedId:q.feedId,publishTime:q.publishTime};g.market.current[id]={...q};g.market.status[id]='live';}}}
+function quoteFor(frame,id){return frame?.prices?.find(q=>matchesStockQuote(q,TOKENS[id])&&quoteConnected(q))||null;}
+function snapshotBaseline(g,frame){const maxAge=quoteMaxAgeMs('Public','equity');for(let id=0;id<12;id++){const q=quoteFor(frame,id);if(q&&q.publishTime*1000<=g.startedAt+5000&&g.startedAt-q.publishTime*1000<=maxAge){g.market.baseline[id]={price:q.price,feedId:q.feedId,publishTime:q.publishTime};g.market.current[id]={...q};g.market.status[id]='live';}}}
 export function updateTacticsMarket(g,frame,wallTime=g.startedAt+g.time*1000){
- const m=g.market;if(g.time+1e-8<m.nextUpdate)return false;
+ const m=g.market,maxAge=quoteMaxAgeMs('Public','equity');if(g.time+1e-8<m.nextUpdate)return false;
  for(let id=0;id<12;id++){const q=quoteFor(frame,id),base=m.baseline[id],prev=m.current[id];
   if(!base){m.status[id]='no-baseline';m.multipliers[id]=1;continue;}
-  if(!q||q.feedId!==base.feedId||q.publishTime<(prev?.publishTime||base.publishTime)||q.publishTime*1000>wallTime+5000||wallTime-q.publishTime*1000>900000){m.status[id]='stale';m.multipliers[id]=1;continue;}
+  if(!q||q.feedId!==base.feedId||q.publishTime<(prev?.publishTime||base.publishTime)||q.publishTime*1000>wallTime+5000||wallTime-q.publishTime*1000>maxAge){m.status[id]='stale';m.multipliers[id]=1;continue;}
   m.current[id]={...q};m.status[id]='live';m.multipliers[id]=clamp(1+(q.price-base.price)/base.price*6,.85,1.15);
  }
  m.sequence++;m.nextUpdate=(Math.floor(g.time/MARKET_PULSE)+1)*MARKET_PULSE;return true;

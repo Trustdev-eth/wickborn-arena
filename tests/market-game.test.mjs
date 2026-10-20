@@ -16,7 +16,50 @@ test('catch-up records each market-interval decision rather than resetting the m
 test('Pyth parser rejects bad identity, confidence, price, exponent and publication time',()=>{const id='a'.repeat(64),now=1800000000000,row={id,price:{price:'10000000000',conf:'1000000',expo:-8,publish_time:now/1000}};assert.equal(parsePrice(row,id,now).price,100);for(const patch of [{price:'0'},{price:'-1'},{expo:-90},{conf:'9999999999'},{publish_time:now/1000-60},{publish_time:now/1000+30}])assert.equal(parsePrice({...row,price:{...row.price,...patch}},id,now),null);assert.equal(parsePrice(row,'b'.repeat(64),now),null);});
 test('an unconfigured oracle returns explicitly neutral data and makes no network request',async()=>{let calls=0;const f=await getMarket({MARKET_SOURCE:'off'},Date.now(),()=>{calls++;throw new Error();});assert.equal(calls,0);assert.equal(f.status,'unconfigured');assert.ok(f.prices.every(p=>p.price===null&&p.status==='unconfigured'));});
 test('public quotes reject non-positive, future, and stale prices',()=>{const now=1800000000000;assert.deepEqual(parsePublicQuote(100,now/1000,now),{price:100,publishTime:now/1000,status:'live'});assert.equal(parsePublicQuote(0,now/1000,now),null);assert.equal(parsePublicQuote(-1,now/1000,now),null);assert.equal(parsePublicQuote(100,now/1000+30,now),null);assert.equal(parsePublicQuote(100,now/1000-200,now),null);});
-test('a missing Pyth key uses the public CoinGecko and Yahoo batch',async()=>{const now=1800000000000,ids=['bitcoin','solana','ethereum','ripple','bonk','pepe','dogecoin','dogwifcoin','popcat','cat-in-a-dogs-world','based-brett'],crypto=Object.fromEntries(ids.map((id,i)=>[id,{usd:100+i,last_updated_at:now/1000}]));let calls=[];const fetcher=async url=>{calls.push(String(url));if(String(url).includes('coingecko'))return Response.json(crypto);if(String(url).includes('finance'))return Response.json({chart:{result:[{meta:{regularMarketPrice:217.5,regularMarketTime:now/1000}}]}});throw new Error('unexpected '+url);};const all=await Promise.all(Array.from({length:8},()=>getMarket({},now,fetcher)));assert.equal(calls.length,2);assert.ok(calls.every(url=>url.startsWith('https://')));const f=all[0];assert.equal(f.source,'Public');assert.equal(f.status,'live');assert.equal(f.prices[0].price,100);assert.equal(f.prices[0].feedId,'coingecko:bitcoin');assert.equal(f.prices[5].price,217.5);assert.equal(f.prices[5].feedId,'yahoo:NVDA');assert.ok(f.prices.every(p=>p.status==='live'));assert.ok(all.every(frame=>frame.prices[0].price===100));});
+test('last session equity prints still baseline a match after the regular close',()=>{
+ const now=1800000000000,g=newGame();
+ g.market=marketBaseline({prices:TOKENS.map(t=>({symbol:t.underlying,feedId:'yahoo:'+t.underlying,price:100,publishTime:now/1000-3600,status:'closed-or-stale'}))},now);
+ assert.equal(g.market.status[0],'live');
+ assert.equal(g.market.baseline[0].price,100);
+ g.time=MARKET_INTERVAL;
+ assert.equal(updateMarket(g,{prices:TOKENS.map(t=>({symbol:t.underlying,feedId:'yahoo:'+t.underlying,price:100,publishTime:now/1000-3600,status:'closed-or-stale'}))}),true);
+ assert.equal(g.market.multipliers[0],1);
+ assert.equal(g.market.status[0],'live');
+});
+test('a missing Pyth key uses one Yahoo batch of the twelve stock underlyings',async()=>{
+ const now=1800000000000,calls=[];
+ const fetcher=async url=>{
+  calls.push(String(url));
+  if(!String(url).includes('/v7/finance/quote'))throw new Error('unexpected '+url);
+  return Response.json({quoteResponse:{result:TOKENS.map((t,i)=>({symbol:t.underlying,regularMarketPrice:100+i,regularMarketTime:now/1000}))}});
+ };
+ const all=await Promise.all(Array.from({length:8},()=>getMarket({},now,fetcher)));
+ assert.equal(calls.length,1);
+ assert.ok(calls[0].startsWith('https://query1.finance.yahoo.com/v7/finance/quote'));
+ const f=all[0];
+ assert.equal(f.source,'Public');
+ assert.equal(f.status,'live');
+ assert.equal(f.prices[0].symbol,'AAPL');
+ assert.equal(f.prices[0].feedId,'yahoo:AAPL');
+ assert.equal(f.prices[0].price,100);
+ assert.equal(f.prices[5].symbol,'NVDA');
+ assert.equal(f.prices[5].feedId,'yahoo:NVDA');
+ assert.equal(f.prices[5].price,105);
+ assert.ok(f.prices.every(p=>p.status==='live'));
+ assert.ok(all.every(frame=>frame.prices[0].price===100));
+});
+test('Yahoo last prints from the regular close stay live overnight without a Pyth key',async()=>{
+ const now=1900000000000,close=now/1000-16*3600,calls=[];
+ const fetcher=async url=>{
+  calls.push(String(url));
+  if(!String(url).includes('/v7/finance/quote'))throw new Error('unexpected '+url);
+  return Response.json({quoteResponse:{result:TOKENS.map(t=>({symbol:t.underlying,regularMarketPrice:100,regularMarketTime:close}))}});
+ };
+ const f=await getMarket({},now,fetcher);
+ assert.equal(calls.length,1);
+ assert.equal(f.status,'live');
+ assert.ok(f.prices.every(p=>p.status==='live'&&p.price===100));
+});
 test('staking totals increase by level and character strength',()=>{assert.equal(stakeRequirement(0,1),0);assert.equal(stakeRequirement(0,2),300);assert.equal(stakeRequirement(0,3),900);assert.equal(stakeRequirement(0,5),4500);assert.ok(stakeRequirement(5,3)>stakeRequirement(4,3));assert.equal(stakeRequirement(-1,3),null);});
 test('player snapshots reveal no opponent hand, future deck order, seed or command IDs',()=>{const g=newGame();runCommand(g,0,{type:'deploy',slot:0,x:135,y:520,actionId:'snapshot-action-001'});const s=playerSnapshot(g,0);assert.deepEqual(s.hand[1],[]);assert.deepEqual(s.queue[1],[]);assert.deepEqual(s.decks[1],[]);assert.equal(s.seed,undefined);assert.equal(s.commands,undefined);assert.equal(s.hand[0].length,4);});
 test('timestamped snapshots interpolate continuously and ignore older responses',()=>{const b=new SnapshotBuffer({delay:100}),g=newGame();deploy(g,0,0,135,520);const make=(time,x)=>({...structuredClone(g),time,units:g.units.map(u=>({...u,x,action:'move'}))});assert.ok(b.push({sequence:1,state:make(0,100)},0));assert.ok(b.push({sequence:2,state:make(.2,120)},200));assert.equal(b.push({sequence:1,state:make(0,100)},250),false);const x1=b.sample(300).units[0].x,x2=b.sample(316).units[0].x;assert.ok(x2>x1);const stopped=b.sample(5000);assert.ok(stopped.units[0].x<=130.001);assert.ok(stopped.interpolated);});

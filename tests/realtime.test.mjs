@@ -4,9 +4,10 @@ import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {newGame} from '../public/game/engine.js';
 import {signToken,signedHeaders,verifyService} from '../lib/security.js';
+import {TacticsAuthority,TACTICS_PROTOCOL} from '../public/game/tactics/protocol.js';
 const require=createRequire(import.meta.url),wr=createRequire(require.resolve('wrangler/package.json')),{Miniflare}=wr('miniflare'),{build}=wr('esbuild');
 const origin='https://arena.test',secret='local-test-only-secret-with-sufficient-entropy';let mf,script;const sockets=[],settlements=[];
-const sitesBinding=async request=>{const body=await request.text();assert.ok(await verifyService(request,body,secret));const data=JSON.parse(body),path=new URL(request.url).pathname.split('/').at(-1);if(path==='bootstrap')return Response.json({row:{id:data.id,stake:50,asset:'credits',transport:'realtime',state:JSON.stringify(newGame()),last_tick:Date.now(),version:1},participants:[data.id+':0',data.id+':1']});if(path==='settle'){settlements.push(data);return Response.json({recorded:true,settled:true});}return Response.json({prices:[]});};
+const sitesBinding=async request=>{const body=await request.text();assert.ok(await verifyService(request,body,secret));const data=JSON.parse(body),path=new URL(request.url).pathname.split('/').at(-1);if(path==='bootstrap'){if(String(data.id).startsWith('skirmish-')){const players=[data.id+':0',data.id+':1'],auth=new TacticsAuthority({players,initial:{seed:1,names:['Host','Joiner']}});return Response.json({row:{id:data.id,stake:0,asset:'skirmish',transport:'realtime',state:JSON.stringify({protocol:TACTICS_PROTOCOL,checkpoint:auth.checkpoint()}),last_tick:Date.now(),version:1},participants:players});}return Response.json({row:{id:data.id,stake:50,asset:'credits',transport:'realtime',state:JSON.stringify(newGame()),last_tick:Date.now(),version:1},participants:[data.id+':0',data.id+':1']});}if(path==='settle'){settlements.push(data);return Response.json({recorded:true,settled:true});}return Response.json({prices:[]});};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function waitFor(predicate,ms=5000){const end=Date.now()+ms;while(Date.now()<end){const x=predicate();if(x)return x;await sleep(10);}throw new Error('Timed out waiting for realtime frame');}
 async function ticket(id,side,extra={}){return signToken({aud:'arena-room',match:id,player:id+':'+side,side,origin,exp:Date.now()+60000,jti:crypto.randomUUID(),...extra},secret);}
@@ -28,3 +29,38 @@ test('real Durable Object sockets acknowledge commands exactly once and hide the
 test('reconnect restores the same authoritative room and tickets cannot be replayed',async()=>{const id='reconnect-test',token=await ticket(id,0),url='https://realtime.test/matches/'+id+'/socket?ticket='+token,r=await mf.dispatchFetch(url,{headers:{Upgrade:'websocket',Origin:origin}});assert.equal(r.status,101);r.webSocket.accept();sockets.push(r.webSocket);const replay=await mf.dispatchFetch(url,{headers:{Upgrade:'websocket',Origin:origin}});assert.equal(replay.status,409);const next=await connect(id,0);assert.equal(next.frames[0].id,id);});
 test('terminal outcomes are sent through the durable settlement outbox',async()=>{const a=await connect('settle-test',0);a.send(JSON.stringify({type:'surrender',actionId:'realtime-surrender-001'}));await waitFor(()=>a.frames.some(f=>f.state?.status==='ended'));await waitFor(()=>settlements.some(x=>x.id==='settle-test'),6000);const final=settlements.find(x=>x.id==='settle-test');assert.equal(final.state.winner,1);});
 test('non-object WebSocket payloads are rejected without stopping the other player',async()=>{const a=await connect('malformed-test',0),b=await connect('malformed-test',1),initial=b.frames.length;a.send('null');await waitFor(()=>b.frames.length>initial);assert.ok(b.frames.at(-1).state.time>0);});
+test('skirmish rooms acknowledge move commands and hide the rival hand from side 1',async()=>{
+ const a=await connect('skirmish-command',0),b=await connect('skirmish-command',1);
+ assert.equal(a.frames[0].protocol,TACTICS_PROTOCOL);
+ assert.deepEqual(a.frames[0].state.hand[1],[]);
+ assert.deepEqual(b.frames[0].state.hand[0],[]);
+ const action={protocol:TACTICS_PROTOCOL,type:'move',x:200,y:500,actionId:'skirmish-move-0001'},before=b.frames.length;
+ a.send(JSON.stringify(action));
+ const ack=await waitFor(()=>a.frames.find(f=>f.type==='ack'&&f.actionId===action.actionId));
+ assert.equal(ack.ok,true);
+ assert.deepEqual(ack.state.units.find(u=>u.captain&&u.p===0).order,{x:200,y:500});
+ await waitFor(()=>b.frames.length>before);
+ const latest=b.frames.filter(f=>f.state).at(-1);
+ assert.deepEqual(latest.state.hand[0],[]);
+ assert.equal(latest.state.units.find(u=>u.captain&&u.p===0).order,null);
+});
+test('skirmish rooms ack a burst of moves without waiting on storage',async()=>{
+ const a=await connect('skirmish-burst',0);
+ const sent=Array.from({length:8},(_,i)=>({protocol:TACTICS_PROTOCOL,type:'move',x:180+i*8,y:500,actionId:'skirmish-burst-'+String(i).padStart(4,'0')}));
+ const start=Date.now();
+ for(const action of sent)a.send(JSON.stringify(action));
+ for(const action of sent)await waitFor(()=>a.frames.find(f=>f.type==='ack'&&f.actionId===action.actionId));
+ assert.ok(Date.now()-start<1500,'Move acks stay on the memory path.');
+});
+
+test('skirmish surrender settles a free match without a token payout',async()=>{
+ const a=await connect('skirmish-settle',0);
+ a.send(JSON.stringify({protocol:TACTICS_PROTOCOL,type:'surrender',actionId:'skirmish-surrender-001'}));
+ await waitFor(()=>a.frames.some(f=>f.state?.status==='ended'));
+ await waitFor(()=>settlements.some(x=>x.id==='skirmish-settle'),6000);
+ const final=settlements.find(x=>x.id==='skirmish-settle');
+ assert.equal(final.state.winner,1);
+ assert.equal(final.state.ruleset,'wickborn-tactics');
+ assert.equal(final.state.round,240);
+ assert.equal(final.state.mode,'duel');
+});

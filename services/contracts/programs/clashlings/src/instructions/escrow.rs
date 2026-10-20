@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
 use crate::error::ArenaError;
@@ -13,9 +14,10 @@ pub struct DepositEscrow<'info> {
     pub config: Account<'info, Config>,
     pub mint: Account<'info, Mint>,
     #[account(
-        mut,
-        constraint = user_ata.owner == wallet.key() @ ArenaError::WrongWallet,
-        constraint = user_ata.mint == mint.key() @ ArenaError::WrongMint
+        init_if_needed,
+        payer = wallet,
+        associated_token::mint = mint,
+        associated_token::authority = wallet
     )]
     pub user_ata: Account<'info, TokenAccount>,
     #[account(mut, address = config.vault, constraint = vault.mint == mint.key() @ ArenaError::WrongMint)]
@@ -40,6 +42,7 @@ pub struct DepositEscrow<'info> {
     )]
     pub escrow: Account<'info, Escrow>,
     pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 

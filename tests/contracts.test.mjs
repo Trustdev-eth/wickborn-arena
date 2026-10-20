@@ -60,6 +60,7 @@ test('localhost adapter URL is configured without enabling live token battles',(
  const cfg=contractConfig({GAME_TOKEN_MINT:mint,GAME_PROGRAM_ID:program,GAME_TOKEN_DECIMALS:'9',CONTRACT_ADAPTER_KEY:'k',CONTRACT_ADAPTER_URL:'http://127.0.0.1:8788'});
  assert.equal(cfg.configured,true);
  assert.equal(cfg.enabled,false);
+ assert.equal(cfg.symbol,'WICKB');
  assert.equal(cfg.chain,'solana:mainnet');
  assert.equal(contractConfig({GAME_TOKEN_MINT:mint,GAME_PROGRAM_ID:program,GAME_TOKEN_DECIMALS:'9',CONTRACT_ADAPTER_KEY:'k',CONTRACT_ADAPTER_URL:'ftp://127.0.0.1:8788'}).configured,false);
 });

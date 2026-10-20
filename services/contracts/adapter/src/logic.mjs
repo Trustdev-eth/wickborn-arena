@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 
-export const PROGRAM_ID_DEFAULT='95knjFtSkTZS6vj7aJgFa5Ty8ArDKZmSnwfGyqAhLZom';
+export const PROGRAM_ID_DEFAULT='F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x';
 export const TOKEN_PROGRAM='TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 export const ASSOCIATED_TOKEN_PROGRAM='ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
 export const SYSTEM_PROGRAM='11111111111111111111111111111111';
@@ -9,18 +9,13 @@ export const COMPUTE_BUDGET_PROGRAM='ComputeBudget111111111111111111111111111111
 export const ESCROW_LOCKED=0,ESCROW_REFUNDED=1,ESCROW_SETTLED=2;
 export const MIN_LOCK_SECONDS=86400;
 
-export const DISCRIMINATORS={
- initialize:Buffer.from([0xaf,0xaf,0x6d,0x1f,0x0d,0x98,0x9b,0xed]),
- stake:Buffer.from([0xce,0xb0,0xca,0x12,0xc8,0xd1,0xb3,0x6c]),
- unstake:Buffer.from([0x5a,0x5f,0x6b,0x2a,0xcd,0x7c,0x32,0xe1]),
- deposit_escrow:Buffer.from([0xe2,0x70,0x9e,0xb0,0xb2,0x76,0x99,0x80]),
- refund_escrow:Buffer.from([0x6b,0xba,0x59,0x63,0x1a,0xc2,0x17,0xcc]),
- settle:Buffer.from([0xaf,0x2a,0xb9,0x57,0x90,0x83,0x66,0xd4]),
- cancel_match:Buffer.from([0x8e,0x88,0xf7,0x2d,0x5c,0x70,0xb4,0x53]),
- set_paused:Buffer.from([0x5b,0x3c,0x7d,0xc0,0xb0,0xe1,0xa6,0xda]),
- set_settlement_authority:Buffer.from([0x66,0x03,0x98,0x9e,0x80,0x13,0x31,0x3d]),
- set_lock_seconds:Buffer.from([0x1d,0x39,0x1b,0xee,0xff,0xef,0xbe,0x44])
-};
+const INSTRUCTION_NAMES=[
+ 'initialize','stake','unstake','deposit_escrow','refund_escrow','settle','cancel_match',
+ 'set_paused','set_settlement_authority','set_lock_seconds'
+];
+export const DISCRIMINATORS=Object.fromEntries(INSTRUCTION_NAMES.map(name=>[
+ name,createHash('sha256').update('global:'+name).digest().subarray(0,8)
+]));
 
 export function instructionName(data){
  if(!data||data.length<8)return null;
