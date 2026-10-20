@@ -8,7 +8,7 @@ The 12 card IDs keep their existing decks, levels, combat values and staking amo
 
 | ID | Stock token | Company | Fighter | Visual identity |
 |---|---|---|---|---|
-| 0 | AAPLx | Apple | Orchardhorn | Mint bull, pearl armor, copper leaf shield |
+| 0 | AAPLx | Apple | Orchardhorn | Green bull, pearl armor, copper leaf shield |
 | 1 | TSLAx | Tesla | Voltrunner | Charcoal fox, red lightning tail, battery coils |
 | 2 | MSFTx | Microsoft | Cloudback | Navy tortoise, cloud-cube fortress shell |
 | 3 | GOOGLx | Alphabet | Lensfin | Blue penguin, brass lens and red scarf |
@@ -31,7 +31,9 @@ Stock products were researched against the issuer's product pages on 2026-10-17.
 
 ## Artwork provenance
 
-The new stock atlas was generated with the built-in image-generation tool. Generation brief: one transparent 4-column × 3-row atlas, exactly twelve full-body fantasy fighters in the order above, crisp charcoal outlines, limited flat colors, simple cel shadows, distinct silhouettes, no text or corporate logos. Each cell follows the palette, anatomy and accessories specified in the roster table; courier gliders occupy one cell as a group of three. The bull logo reuses the later flat mascot image from the naming/design conversation.
+The active artwork uses twelve separate 3D-style raster portraits generated with the built-in image-generation tool and the selected bull as a rendering-style reference. Transparent masters are checked in under `art/portraits/`; production PNG/WebP pairs retain the complete silhouette. Both lobbies use the same 3D-style arena landscape and ivory/cobalt interface. See [2D-ART.md](2D-ART.md) and [the art brief/prompt set](ILLUSTRATED-ART-PROMPTS.md).
+
+The preceding flat vector portraits and their two SVG landscapes remain archived but are not used by the active cards or lobby. Earlier stock/crypto atlases are historical assets. The existing vector bull mark remains the site logo.
 
 ## Sculpted 3D revision
 
@@ -41,7 +43,7 @@ The fox has a tapered snout, tall pinnae and sculpted red tail; the bull has swe
 
 Geometry is baked by material within each animated joint and shared across instances. Rendering budgets remain below 56 meshes and 36,000 triangles per fighter, including silhouette meshes; the most detailed fighter currently uses 54 meshes and 35,532 triangles. These are geometry budgets, not a measured device frame-rate guarantee.
 
-`docs/sculpted-fighters-preview.png` projects the actual new geometry with offline lighting. It is a review aid, not a browser screenshot or an exact reproduction of the game's WebGL lighting. The atlas is the design reference; the procedural sculptures are a stylized interpretation rather than a claim of exact illustration-to-3D conversion.
+`docs/sculpted-fighters-preview.png` projects the actual new geometry with offline lighting. It is a review aid, not a browser screenshot or an exact reproduction of the game's WebGL lighting. The illustrations and procedural sculptures share creature identities and visual landmarks; they are stylized interpretations rather than an exact illustration-to-3D conversion. The older geometry preview predates the current arena palette and lighting.
 
 ## Natural action revision
 
@@ -67,6 +69,6 @@ The WICKB brand appears throughout the UI. Transaction review continues to use t
 
 ## Validation
 
-120 tests passed, including seven stock frontend checks, five sculpted-geometry checks, seven natural-motion checks and four sprite-isolation checks. TypeScript passed. The production build passed. Run `node --test tests/*.test.mjs` and `node node_modules/typescript/bin/tsc --noEmit --incremental false`. `stock-frontend.test.mjs` checks stock-only presentation, stable IDs/stats/staking, quote identity, readiness and authoritative-state isolation. Existing model tests check geometry, joints, camera framing, draw budgets, market emotions and disposal. `sculpted-fighters.test.mjs` adds outward face winding, flush skin regions, feather orientation, articulated wingtip geometry, rest bounds and finite combat/reaction poses. `natural-motion.test.mjs` checks stance and swing continuity, actual ankle support, volume-preserving reactions, inset eyes, shared texture cleanup, impact timing and independent secondary joints. `sprite-art.test.mjs` decodes the actual PNG alpha pixels to verify padding, checks exported atlas gutters, and tests whole-image rendering in both cards and the 2D canvas.
+166 tests passed after the shared palette and illustrated-art revision, including the existing stock, sculpted-geometry, natural-motion and sprite-isolation checks. TypeScript passed. The production build passed. Run `node --test tests/*.test.mjs` and `node node_modules/typescript/bin/tsc --noEmit --incremental false`. `stock-frontend.test.mjs` checks stock-only presentation, stable IDs/stats/staking, quote identity, readiness and authoritative-state isolation. Existing model tests check geometry, joints, camera framing, draw budgets, market emotions and disposal. `sculpted-fighters.test.mjs` adds outward face winding, flush skin regions, feather orientation, articulated wingtip geometry, rest bounds and finite combat/reaction poses. `natural-motion.test.mjs` checks stance and swing continuity, actual ankle support, volume-preserving reactions, inset eyes, shared texture cleanup, impact timing and independent secondary joints. `sprite-art.test.mjs` decodes the actual PNG alpha pixels to verify padding, checks exported atlas gutters, and tests whole-image rendering in both cards and the 2D canvas.
 
 Browser/GPU inspection was unavailable in this authoring environment. Numerical model checks and a projection contact sheet are separate from actual device playtesting. No backend, smart contract or production deployment is performed by this frontend branch.

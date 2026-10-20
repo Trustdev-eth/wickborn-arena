@@ -1,0 +1,145 @@
+{
+  "format": "glTF 2.0 binary",
+  "materials": "Base colors and vertex shading; runtime grain maps and silhouette pass omitted.",
+  "files": [
+    {
+      "file": "aaplx.glb",
+      "bytes": 1341060,
+      "sha256": "c69828d37d1137b422f91cfb2fac2920e936f6a6a141587d038e70189278ded7",
+      "meshes": 34,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "tslax.glb",
+      "bytes": 1546292,
+      "sha256": "1c5a09f974e8c066cd45ddc875b861fe08ee83a3bc7cc17dadfb374e68808ce7",
+      "meshes": 36,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "msftx.glb",
+      "bytes": 1406660,
+      "sha256": "c3d0b562e29702f4d11c9ca32d0da2c17d25da98d05e5ac5b4aa41807c3aae05",
+      "meshes": 40,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "googlx.glb",
+      "bytes": 673120,
+      "sha256": "de80d96f35e5aa7cd842b1b2dbe58ca2887dc0754e9cb215469cd9b2be3a0e57",
+      "meshes": 32,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "amznx.glb",
+      "bytes": 937688,
+      "sha256": "19d0c1400803c6be253dff2dae38291ad98a657ce0ffe8664ae928e645d24f3a",
+      "meshes": 39,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "nvdax.glb",
+      "bytes": 1275680,
+      "sha256": "e01308e6bd128ca4226044d07a066f91633ba90904c96bbaf414b334bf48658d",
+      "meshes": 33,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "jnjx.glb",
+      "bytes": 1452800,
+      "sha256": "6db847b32828ed8e652af83845f91bf8180eea85ccfc4cfd595515a9c2a2557a",
+      "meshes": 38,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "metax.glb",
+      "bytes": 2065440,
+      "sha256": "668db160422cf52c64ec172517a9f068fd143c68a5661f815fc7df5e9bb20f8f",
+      "meshes": 39,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "jpmx.glb",
+      "bytes": 2722284,
+      "sha256": "67b0e3037eee297b791b79e20251425fc159e9676a34988c25b5d6b51f325db1",
+      "meshes": 44,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "nflxx.glb",
+      "bytes": 2339088,
+      "sha256": "44689b8ad01f9b2ab55aa9fdcd545700d7d7be85b5f134c9121e0b2aefd577b5",
+      "meshes": 28,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "mcdx.glb",
+      "bytes": 831596,
+      "sha256": "489e21865c4d40da48400ae78acb9f9eadbc884d574938bb6d27bf71416ae5fa",
+      "meshes": 19,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "hoodx.glb",
+      "bytes": 2575504,
+      "sha256": "9c297d836b75f970f26206ae9646bf6e74319a22e300d932a1dde5397cae4972",
+      "meshes": 42,
+      "animations": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    {
+      "file": "arena.glb",
+      "bytes": 554952,
+      "sha256": "98c1c411eaa7c0230a431bfb8180813bb90e38bec63082bbcbceb299cebfb68f",
+      "meshes": 113,
+      "animations": []
+    }
+  ]
+}

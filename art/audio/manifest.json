@@ -1,0 +1,286 @@
+{
+  "version": 1,
+  "sampleRate": 44100,
+  "channels": 2,
+  "masterBits": 16,
+  "deliveryCodec": "mp3",
+  "deliveryBitrate": 128000,
+  "masterPeakDbfs": -6,
+  "provenance": "Original local additive/noise DSP; no samples or model services",
+  "reelGapSeconds": 0.55,
+  "cues": [
+    {
+      "name": "select",
+      "url": "/game/sounds/select.mp3",
+      "durationSeconds": 0.24,
+      "description": "Soft wooden selection tick with a small glass overtone",
+      "master": "art/audio/select.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -22.8,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.69,
+        "rmsDbfs": -23.28,
+        "last30msRmsDbfs": -134.95
+      },
+      "masterSha256": "f33a387f21ad1ee5e05967d5c6cb6e430eba616e62be2a9ad76d53202561d3a1",
+      "deliverySha256": "443b66de94d1cd56c572c074d1e4c759cd068b59af15dbaae0edafadcecc8144",
+      "deliveryBytes": 5014,
+      "reelStartSeconds": 0.35
+    },
+    {
+      "name": "deploy",
+      "url": "/game/sounds/deploy.mp3",
+      "durationSeconds": 0.78,
+      "description": "Forward air rush, earth landing and a warm confirmation chime",
+      "master": "art/audio/deploy.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -24.78,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.67,
+        "rmsDbfs": -25.25,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "ab1fc5c3811ee22bd738cc92ef95c8237c7784cd87a8b2747823cae85bdb16bf",
+      "deliverySha256": "e670d6e8ecd6aca0c1f0436c87219d030ad01a027b118327805f90d5b6cf4f0d",
+      "deliveryBytes": 13373,
+      "reelStartSeconds": 1.14
+    },
+    {
+      "name": "melee",
+      "url": "/game/sounds/melee.mp3",
+      "durationSeconds": 0.49,
+      "description": "Short directional swing, padded impact and a small metal ring",
+      "master": "art/audio/melee.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -24.1,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.69,
+        "rmsDbfs": -24.65,
+        "last30msRmsDbfs": -156.12
+      },
+      "masterSha256": "fa3865eef1a3c16fdf6b8782a4de634931feb6b5ad88387a5a27ce76f48f4065",
+      "deliverySha256": "263d71ec6d9e97ba08572511c1b69c279fafefe8ac70b6b10ed0f566e933fc52",
+      "deliveryBytes": 8776,
+      "reelStartSeconds": 2.47
+    },
+    {
+      "name": "heavy",
+      "url": "/game/sounds/heavy.mp3",
+      "durationSeconds": 0.9,
+      "description": "Weighty low impact, layered debris and a muted armor resonance",
+      "master": "art/audio/heavy.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -23.93,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.68,
+        "rmsDbfs": -24.35,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "203fb09f195d7c4f518bd062b05d28d49a2c33541b29d2b831875c3cf785cf46",
+      "deliverySha256": "969d576ef17ca278d2a026e240ab7dc1787919604be669192c8e637ca097944d",
+      "deliveryBytes": 15463,
+      "reelStartSeconds": 3.51
+    },
+    {
+      "name": "projectile",
+      "url": "/game/sounds/projectile.mp3",
+      "durationSeconds": 0.62,
+      "description": "Fast air flick and a light traveling whistle",
+      "master": "art/audio/projectile.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -24.22,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -5.11,
+        "rmsDbfs": -24.64,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "d1214832138cb640cdbef155ea40502d072d2926bcc343a9b52cb95d46dd67ca",
+      "deliverySha256": "ab0352e21df1b4c8cdbfc17261fde4bcecfbb5eaf50dd39d61cc2be017eb8993",
+      "deliveryBytes": 10866,
+      "reelStartSeconds": 4.96
+    },
+    {
+      "name": "magic",
+      "url": "/game/sounds/magic.mp3",
+      "durationSeconds": 1.08,
+      "description": "Crackling electrical wind with an inharmonic crystalline bloom",
+      "master": "art/audio/magic.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -24.98,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.73,
+        "rmsDbfs": -25.38,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "675b906bb60850032f5b6e383a7ffeafa5a43da451b5e4fb7753991a94ed453a",
+      "deliverySha256": "baacc2d67d2338d2daf4cbc71a9007d74359bae0b245686bd821f88d7398f3a5",
+      "deliveryBytes": 18389,
+      "reelStartSeconds": 6.13
+    },
+    {
+      "name": "heal",
+      "url": "/game/sounds/heal.mp3",
+      "durationSeconds": 1.22,
+      "description": "Gentle rising glass and mallet notes with an airy shimmer",
+      "master": "art/audio/heal.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -20.51,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.66,
+        "rmsDbfs": -20.96,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "e0864eaf384c2a072c3fd27600b663fc45013b50068b11462b2606b670e171db",
+      "deliverySha256": "31e5a2c44ffff7dbbd3e3e312be77b801dd1682071c0b4dd69b7709bec3846c1",
+      "deliveryBytes": 20479,
+      "reelStartSeconds": 7.76
+    },
+    {
+      "name": "tower",
+      "url": "/game/sounds/tower.mp3",
+      "durationSeconds": 1.36,
+      "description": "Three staggered stone impacts, rubble and a low settling rumble",
+      "master": "art/audio/tower.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -23.3,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.06,
+        "rmsDbfs": -23.72,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "f967c75d20d8fdad098e1b5532746644f38468c4a5a0c62c14483d77db1a8c9a",
+      "deliverySha256": "ce01a55f85855a8e73bc38c98b7f43c97b088dd1dfe409e474ef014f12098a5e",
+      "deliveryBytes": 22986,
+      "reelStartSeconds": 9.53
+    },
+    {
+      "name": "capture",
+      "url": "/game/sounds/capture.mp3",
+      "durationSeconds": 1.4,
+      "description": "Ascending mallet confirmation with a short bright chord",
+      "master": "art/audio/capture.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -20.83,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.73,
+        "rmsDbfs": -21.27,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "17c2bf0c25fffda32b021203426af7775c281718c7807ff3c127afa7f65470d1",
+      "deliverySha256": "1514092684cbdc5eddb2f00f83476a6cedb8312228bd4db6b89041111c00466d",
+      "deliveryBytes": 23404,
+      "reelStartSeconds": 11.44
+    },
+    {
+      "name": "ultimate",
+      "url": "/game/sounds/ultimate.mp3",
+      "durationSeconds": 1.98,
+      "description": "A rising energy intake, deep impact and a wide magical release",
+      "master": "art/audio/ultimate.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -24.99,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.63,
+        "rmsDbfs": -25.44,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "b965f839ed5b55f1a25533920b622a50b7349a790f26953b824fd607c1ac4bb9",
+      "deliverySha256": "4e749ec1b8f84886fd95a738d6040a5472faac9f0feb5f163ee573d45d9d868f",
+      "deliveryBytes": 32599,
+      "reelStartSeconds": 13.39
+    },
+    {
+      "name": "victory",
+      "url": "/game/sounds/victory.mp3",
+      "durationSeconds": 3.75,
+      "description": "Original C-major brass, mallet and soft percussion fanfare",
+      "master": "art/audio/victory.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -25.05,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.38,
+        "rmsDbfs": -25.48,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "dcc4cb9bce0f4034283e88ac94ac44f0fde6c76fc4bee2855d2656de28ff4aad",
+      "deliverySha256": "fd23d848ebb5b91cb8073d7f47519d182afe83febdfd1c27f06c460a29c748c1",
+      "deliveryBytes": 61021,
+      "reelStartSeconds": 15.92
+    },
+    {
+      "name": "defeat",
+      "url": "/game/sounds/defeat.mp3",
+      "durationSeconds": 2.85,
+      "description": "Restrained descending minor phrase with a low closing chord",
+      "master": "art/audio/defeat.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -27.63,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.56,
+        "rmsDbfs": -28.04,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "2eee9951a0ef2c0502cda2256d0c336ba101b9fdb3f06f736531a135cf251528",
+      "deliverySha256": "35aa397b7cd8f2d29208dcaf1c9cbec933029eecf0ad2d8c8c6139564835f5fe",
+      "deliveryBytes": 46810,
+      "reelStartSeconds": 20.22
+    },
+    {
+      "name": "draw",
+      "url": "/game/sounds/draw.mp3",
+      "durationSeconds": 2.18,
+      "description": "Two calm unresolved suspended chords and a soft closing mallet",
+      "master": "art/audio/draw.wav",
+      "masterLevels": {
+        "peakDbfs": -6.0,
+        "rmsDbfs": -20.6,
+        "last30msRmsDbfs": -240.0
+      },
+      "deliveryLevels": {
+        "peakDbfs": -6.44,
+        "rmsDbfs": -21.05,
+        "last30msRmsDbfs": -240.0
+      },
+      "masterSha256": "baa3d02e029902bee2e4eb56b603dfca4e06ca0cd749e42c957f2e64e6ec32fb",
+      "deliverySha256": "c940b66d2824a87d6aac0a8a4c9104d0378535366365550836772188c41be914",
+      "deliveryBytes": 35943,
+      "reelStartSeconds": 23.62
+    }
+  ]
+}

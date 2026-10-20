@@ -7,7 +7,7 @@ const MAX_SPEED=110,SNAP=140,SETTLE=12,HISTORY=5;
 // re-keyed predictions) are eased out over a few frames instead of snapping.
 export class MotionTracker {
  constructor(){this.tracks=new Map();}
- static renderTime(g,clock){return Number.isFinite(clock)?Math.min(clock,g.time+STEP)-STEP:g.time;}
+ static renderTime(g,clock){const step=Number.isFinite(g.simulationStep)&&g.simulationStep>0&&g.simulationStep<=.1?g.simulationStep:STEP;return Number.isFinite(clock)?Math.min(clock,g.time+step)-step:g.time;}
  update(units,time,renderTime,dt){
   const live=new Set();
   for(const u of units){
@@ -16,7 +16,7 @@ export class MotionTracker {
    const s=t.samples;while(s.length&&s[s.length-1].t>time+1e-6)s.pop();
    const last=s[s.length-1];if(last&&Math.abs(last.t-time)<1e-6){last.x=u.x;last.y=u.y;}else s.push({t:time,x:u.x,y:u.y});if(s.length>HISTORY)s.shift();
    const [x,y]=sampleAt(s,renderTime);
-   if(t.rawX!==null){const jump=Math.hypot(x-t.rawX,y-t.rawY),allowed=MAX_SPEED*Math.max(dt,Math.abs(renderTime-t.rt))+2;if(jump>SNAP){t.errX=0;t.errY=0;}else if(jump>allowed){t.errX+=t.rawX-x;t.errY+=t.rawY-y;}}
+   if(t.rawX!==null){const jump=Math.hypot(x-t.rawX,y-t.rawY),allowed=(u.action==='dash'?900:MAX_SPEED)*Math.max(dt,Math.abs(renderTime-t.rt))+2;if(jump>SNAP){t.errX=0;t.errY=0;}else if(jump>allowed){t.errX+=t.rawX-x;t.errY+=t.rawY-y;}}
    const k=Math.exp(-dt*SETTLE);t.errX*=k;t.errY*=k;if(Math.abs(t.errX)+Math.abs(t.errY)<.05){t.errX=0;t.errY=0;}
    t.rawX=x;t.rawY=y;t.rt=renderTime;t.x=x+t.errX;t.y=y+t.errY;
   }

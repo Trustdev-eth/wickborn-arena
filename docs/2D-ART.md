@@ -1,19 +1,49 @@
-# Complete, isolated 2D fighters
+# Wickborn card art and color system
 
-The previous sheet placed parts of several silhouettes across the equal-cell boundaries. Both CSS background offsets and the canvas renderer then sliced a snout, horn or claw out of one card and drew it on the next card.
+Updated 2026-10-19; current revision follows `e6d0532`. The active cards use twelve generated **3D-style raster portraits** with broad sculpted forms, saturated local colors and simpler materials. The site now uses an ivory-and-cobalt palette with sunny yellow, coral and green accents. This replaces the earlier dark teal interface and detailed painted portraits.
 
-The artwork was regenerated with the built-in image-generation tool using the existing sheet as the design reference and a transparent background. Every complete silhouette was then isolated from the generated sheet by its connected alpha pixels. Adjacent character pixels were excluded even where their bounding rectangles were close. This is sprite extraction and packing; the original generated colors and painted details are preserved.
+## Active assets
 
-Each fighter now has its own 512×512 RGBA PNG, scaled to fit within a centered 432×432 area. This leaves at least 40 transparent pixels on every side. `public/game/characters/manifest.json` records the source silhouette bounds and output paths in the stable card-ID order. The three courier gliders remain together in the AMZNx portrait.
+| Path | Purpose |
+| --- | --- |
+| `art/portraits/*.png` | Twelve transparent master portraits |
+| `art/arena-crossing.png` | Shared 3D-style arena landscape master |
+| `art/card-art-prompts.json` | Exact selected prompts, reference roles and generation mode |
+| `public/game/characters/*.png` | Twelve complete 512×512 RGBA portraits |
+| `public/game/characters/*.webp` | Optimized equivalents selected by CSS |
+| `public/game/characters/manifest.json` | IDs, source bounds, source type, edge checks and export paths |
+| `public/game/backgrounds/arena-crossing.webp` | Both lobby versions use the same landscape |
+| `public/game/stock-creatures.png` | 2048×1536 review atlas; not sampled by runtime cards |
+| `docs/console-fighters-preview.png` | Current card-art review sheet |
+| `docs/console-arena-preview.png` | Current landscape review |
 
-`public/game/sprite-art.js` defines the image mapping used by the frontend. Cards and modals use a whole-image background with `contain` sizing, and the 2D canvas uses the whole corresponding PNG with no source crop. The CSS rule is shared by every existing `.sprite` view. The 2048×1536 `stock-creatures.png` is a separately packed contact-sheet export with consistent 512×512 cells and clear gutters.
+All twelve portraits are separate images. Parcelpack is its own group of three couriers. No runtime card or canvas renderer extracts a neighboring atlas cell. Exports fit the entire alpha silhouette into a 432×432 safe area on a transparent 512×512 canvas, leaving at least 40 clear pixels on each side. The exporter also rejects source images with opaque pixels touching the outer two-pixel edge. All twelve selected masters pass that check.
 
-The fix changes image presentation only. Existing 3D fighters, card IDs, combat stats, stock quote validation, balances, backend and contracts are unchanged.
+The twelve PNG fallbacks total **2,629,425 bytes**. The twelve optimized WebPs total **509,138 bytes**; the shared landscape WebP is **264,420 bytes**. Full-resolution masters are source files, not frontend downloads.
 
-## Generation prompt
+## Color and presentation
 
-Built-in image-generation edit; reference: the existing twelve-fighter stock sheet; transparent background enabled.
+`public/game/art-direction.js` is the canonical palette. `scripts/export-palette.mjs` writes the matching CSS variables to `app/palette.css`. `app/world-theme.css` scopes the `content-*` tokens to panels, dialogs and toasts: slate-blue surfaces, ivory text, pale blue actions and gold accents. Menus, collection details, upgrades, rankings, account, results, Classic controls and Skirmish controls share those values. Cards use a subtle fighter-color tint over blue and retain their colored top edge; cost badges use yellow with dark navy text. Positive and negative market information keep separate green and red text. Background and portrait files are unchanged by the palette update. The hand-authored SVG arena crest and matching PNG review are in `public/brand/wickborn-mark.svg` and `docs/wickborn-crest-preview.png`.
 
-> Use case: precise-object-edit. Asset type: production transparent 2D fantasy game character sprite sheet. Edit the provided Wickborn Arena 12-character artwork to FIX CROPPING AND NEIGHBOR CONTAMINATION. Preserve the same twelve specific creature identities, their palettes, costume details and crisp hand-inked cel illustration style. This is an asset-layout correction, not a redesign. Return exactly 4 equal-width columns by exactly 3 equal-height rows, landscape 4:3 canvas, like a precise evenly spaced contact sheet. All cell boundaries are at x=25%,50%,75% and y=33.333%,66.667%. Each FULL character/group must be fully contained in the CENTRAL 70% width AND CENTRAL 70% height of its own cell, with generous EMPTY TRANSPARENT margins of at least 15% of its cell on ALL FOUR SIDES. Shrink the entire character as needed, including the complete horns, head, wings, feet, tails, staff, crown, scarf, armor, claws, parcels and antennae. No part of any character may touch a cell edge or another character. Nothing outside its assigned cell. Maintain the important details rather than cutting them off. Twelve separate full-body sprites, comfortably spaced on transparent background, NO grid lines, labels, cell frames, numbers, text, UI or shadows/background scenery. Exact row-major order: Row1: (1) mint-green armored bull with silver curved horns, cream/pearl plate armor and copper leaf shield; (2) charcoal fox with crimson tufts, huge scarlet lightning-shaped tail, ivory muzzle/feet, twin silver battery coils; (3) navy tortoise with ivory belly and pale icy-blue cloud-cube fortress shell, entire snout and all feet fully contained; (4) royal-blue penguin with ivory belly, gold monocle, red flowing scarf, gold compass crest. Row2: (5) compact group of THREE complete orange flying courier gliders with teal bat wings, each carrying its own cardboard parcel, group entirely inside that cell; (6) dark emerald processor golem, broad green shoulders with gold chip contacts, mint glowing visor and diamond core, copper claws; (7) green frog healer, ivory robe with red trim, coral-red lily shoulder decorations, brown staff topped by coral lily, complete staff; (8) indigo/lilac dragon, cyan translucent portal wings and rings, complete curled tail. Row3: (9) stocky navy rhinoceros in brass vault armor, ivory nose horn, full snout and all feet inside its cell; (10) charcoal moth with cream face, four crimson film-ribbon wings with reel spots, complete antennae and wings; (11) golden slime in a red paper wrap and chunky golden fry crown, only this slime, NO moth fragments, no owl leaves; (12) jade owl archer with cream heart-shaped facial disc, dark green hood and leaf crest, layered green feather wings. Match the original character designs as closely as possible. Important: everything is FULL-BODY with 15% clear gutters within every equal cell; zero fragments from any neighboring character; genuinely transparent alpha background.
+The battle renderer and 2D fallback import the same arena palette. Sky and distant background are now light blue/ivory, with blue water, green turf, ivory stone and blue/coral towers. Existing 3D fighter meshes, animation, camera and simulation remain unchanged. The new card images depict the same creature identities and major accessories, but are generated raster artwork rather than exports of the game's actual procedural meshes.
 
-The raw generation's spacing still varied, so the production files use measured silhouette extraction and explicit padding rather than assuming that the generated art followed a precise grid. The four sprite regression checks verify the actual output pixel boundaries and the rendering paths. Live browser verification remains unavailable in the authoring environment.
+The palette's checked text pairs have contrast ratios of 12:1 for body text, 6.03:1 for secondary text, 6.04:1 for primary buttons, 9.01:1 for cost badges, 5.83:1 for positive text and 5.19:1 for negative text. These are checks of the specified color pairs, not a full browser accessibility audit.
+
+## Re-export
+
+Run these commands in the full project checkout with its locked dependencies installed:
+
+```sh
+node scripts/export-illustrated-art.mjs
+node scripts/export-palette.mjs
+```
+
+The artwork exporter uses Sharp from the existing locked dependency tree. It frames and formats the saved masters without generating new artwork. PNG/WebP pairs, the manifest, review atlas, landscape export and review sheets are reproducible from the checked-in masters. Image generation itself is nondeterministic; the selected masters preserve the actual results.
+
+`docs/console-fighters-preview.png` is a direct asset layout with roster names and game costs, not a browser screenshot. Older `fantasy-*` and `arcade-*` review sheets describe earlier revisions. Archived vector portraits and landscapes are inactive. The legacy vector exporter requires `--legacy-vector` before replacing the current raster roster.
+
+## Provenance and scope
+
+The built-in `image_gen.imagegen` tool generated the selected portraits and landscape. The first selected bull established the rendering style for the other eleven; the landscape was generated separately. See [the prompt guide](ILLUSTRATED-ART-PROMPTS.md) and exact JSON prompt set. The style targets clean console-game renders rather than detailed painted fantasy key art. The artwork is not described as human-authored.
+
+Backend services, smart contracts, database/migrations, market rules, combat engines, transport and prediction are unchanged. Browser/GPU and physical-device visual testing were unavailable in this managed environment. The exported artwork sheets were visually reviewed; frontend validation is recorded in [UI-REDESIGN.md](UI-REDESIGN.md).

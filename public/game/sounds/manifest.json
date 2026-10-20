@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "format": "mp3",
+  "sampleRate": 44100,
+  "channels": 2,
+  "peakDbfs": -6,
+  "cues": {
+    "select": {
+      "url": "/game/sounds/select.mp3",
+      "durationSeconds": 0.24
+    },
+    "deploy": {
+      "url": "/game/sounds/deploy.mp3",
+      "durationSeconds": 0.78
+    },
+    "melee": {
+      "url": "/game/sounds/melee.mp3",
+      "durationSeconds": 0.49
+    },
+    "heavy": {
+      "url": "/game/sounds/heavy.mp3",
+      "durationSeconds": 0.9
+    },
+    "projectile": {
+      "url": "/game/sounds/projectile.mp3",
+      "durationSeconds": 0.62
+    },
+    "magic": {
+      "url": "/game/sounds/magic.mp3",
+      "durationSeconds": 1.08
+    },
+    "heal": {
+      "url": "/game/sounds/heal.mp3",
+      "durationSeconds": 1.22
+    },
+    "tower": {
+      "url": "/game/sounds/tower.mp3",
+      "durationSeconds": 1.36
+    },
+    "capture": {
+      "url": "/game/sounds/capture.mp3",
+      "durationSeconds": 1.4
+    },
+    "ultimate": {
+      "url": "/game/sounds/ultimate.mp3",
+      "durationSeconds": 1.98
+    },
+    "victory": {
+      "url": "/game/sounds/victory.mp3",
+      "durationSeconds": 3.75
+    },
+    "defeat": {
+      "url": "/game/sounds/defeat.mp3",
+      "durationSeconds": 2.85
+    },
+    "draw": {
+      "url": "/game/sounds/draw.mp3",
+      "durationSeconds": 2.18
+    }
+  }
+}

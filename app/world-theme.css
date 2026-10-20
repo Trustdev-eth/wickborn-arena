@@ -1,0 +1,441 @@
+/* The HUD uses the Octet Game Level palette over the existing world backdrop. */
+html,body,:root { background:var(--paper); font-family:var(--font-ui); color-scheme:light; }
+body { isolation:isolate; }
+body::before {
+ content:""; position:fixed; inset:-20px; z-index:-1; pointer-events:none;
+ background:linear-gradient(180deg,color-mix(in srgb,var(--paper) 78%,transparent) 0%,color-mix(in srgb,var(--sun) 22%,transparent) 34%,color-mix(in srgb,var(--paper) 86%,transparent) 100%),url('/game/backgrounds/arena-crossing.webp') center 45%/cover;
+ filter:blur(5px); transform:scale(1.025);
+}
+.app-shell,.app-shell.battle-screen,.app-shell[data-page="tactics"]:has(.t-battle) { background:transparent; }
+/* Scope panel colors to the interface. The scene, background and art keep their
+   approved colors; no image filters or game-renderer palette changes are used. */
+#main-content,#modal-root,#toast {
+ --paper:var(--content-recess); --surface:var(--content-surface);
+ --raised:var(--content-raised); --recess:var(--content-recess);
+ --ink:var(--content-ink); --muted:var(--content-muted); --line:var(--content-edge);
+ --blue:var(--content-accent); --accent:var(--content-accent);
+ --accent-strong:var(--content-accent-hover); --accent-soft:var(--content-raised);
+ --card-surface:var(--content-surface); --card-edge:var(--content-edge);
+ --gold:var(--content-gold); --mint:var(--content-positive); --danger:var(--content-negative);
+ --purple:color-mix(in srgb,var(--leaf) 35%,var(--world-panel)); --pink:var(--coral);
+ --gold-grad:var(--gold); --blue-grad:var(--blue); --panel-grad:var(--surface);
+ color:var(--ink); color-scheme:light;
+}
+.topbar { border-bottom:1px solid var(--world-line); box-shadow:0 1px 0 var(--gold); }
+.brand b { color:var(--world-ink); text-shadow:0 1px 0 var(--white); font-family:var(--font-display); letter-spacing:.05em; font-weight:400; font-synthesis:none; font-size:24px; }
+.brand small { display:none; }
+.brand-mark { background:transparent; border:0; border-radius:0; box-shadow:none; }
+.brand-mark img { width:46px; height:46px; filter:drop-shadow(0 2px 1px color-mix(in srgb,var(--ink) 35%,transparent)); }
+.desktop-nav { background:color-mix(in srgb,var(--surface) 82%,transparent); padding:4px; border:1px solid var(--world-line); border-radius:11px; }
+.desktop-nav button { color:var(--world-muted); }
+.desktop-nav button.active { background:var(--sun); color:var(--badge-ink); box-shadow:inset 0 -3px 0 var(--coral); }
+.desktop-nav button:hover:not(.active) { background:var(--raised); color:var(--ink); }
+.help-link,.top-actions .icon-button { color:var(--world-muted); }
+.help-link:hover { color:var(--sun); }
+.topbar :focus-visible,.play-guide-link:focus-visible,.mobile-nav :focus-visible,.setup-heading>.text-button:focus-visible { outline-color:var(--sun); }
+.wallet-connect { background:var(--content-raised); color:var(--world-ink); border-color:var(--world-line); box-shadow:0 3px 0 var(--coral); }
+.wallet-connect:hover { background:color-mix(in srgb,var(--world-sky) 28%,var(--world-panel)); border-color:var(--world-sky); }
+.balance-chip b { color:var(--sun); }.balance-chip small { color:var(--world-muted); }
+.trainer-chip .sprite { border-color:var(--world-sky); }
+.page-heading h1,.play-intro h1 { color:var(--world-ink); }
+.page-context,.page-meta,.page-meta .arena-status { color:var(--world-muted); }
+.play-intro .eyebrow { color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }.play-intro h1 em { color:var(--world-sky); }
+.play-intro p,.collection-intro>p,.setup-heading>p { color:var(--ink); }
+.play-guide-link { background:var(--content-raised); color:var(--world-ink); border-color:var(--world-line); box-shadow:0 4px 0 var(--coral); }
+.play-guide-link>span { color:var(--sun); border-color:var(--gold); background:var(--world-panel); }
+.play-guide-link small { color:var(--world-muted); }.play-guide-link:hover { background:color-mix(in srgb,var(--world-sky) 22%,var(--world-panel)); }
+.play-world { border:2px solid var(--line); box-shadow:0 5px 0 var(--coral),0 16px 30px color-mix(in srgb,var(--ink) 18%,transparent); }
+.world-caption { background:var(--surface); border-top:1px solid var(--line); }
+.world-caption>span { color:var(--ink); }.world-caption p { color:var(--ink); }
+.world-caption>div>span,
+.world-caption>div>span:nth-child(2),
+.world-caption>div>span:nth-child(3) {
+ color:var(--ink);
+ background:var(--raised);
+ border:1px solid var(--line);
+}
+.play-launch.panel { border:2px solid var(--line); background:var(--surface); box-shadow:inset 0 1px 0 #ffffff8c,0 5px 0 var(--coral),0 16px 30px color-mix(in srgb,var(--ink) 18%,transparent); }
+.play-launch .launch-heading { padding-bottom:2px; }
+.play-start.button.primary { background:var(--sun); border-color:color-mix(in srgb,var(--sun) 70%,var(--coral)); color:var(--badge-ink); box-shadow:0 4px 0 var(--coral); }
+.play-start.button.primary:hover { background:color-mix(in srgb,var(--sun) 72%,var(--white)); }
+.game-picker>button { background:var(--recess); }.game-picker>button.active { background:var(--raised); border-color:var(--gold); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 14%,transparent); }
+.game-picker>button.active b { color:var(--ink); }.game-picker>button.active i { color:var(--badge-ink); }
+.play-type-picker { background:var(--recess); border-color:var(--line); }
+.play-type-picker>.active { background:var(--raised); border-color:var(--accent); }
+.play-type-picker>.active b { color:var(--ink); }.play-type-picker>.active span { color:var(--muted); }
+.lobby-squad-art>span,.lobby-squad-art .is-captain { background:var(--recess); }
+.launch-heading .eyebrow { color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.lobby-squad .text-button { color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.play-quickstart { border-color:var(--world-line); }
+.play-quickstart>div { padding:13px; border:1px solid var(--world-line); border-radius:10px; background:color-mix(in srgb,var(--world-panel) 88%,transparent); }
+.play-quickstart p { color:var(--ink); }.play-quickstart b { color:var(--world-ink); }
+.play-quickstart>div:first-child>span { color:var(--badge-ink); }
+.site-footer { color:var(--ink); border-color:var(--world-line); }.site-footer button { color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.collection-tools>h3,.setup-heading>h1,.setup-heading>.text-button { color:var(--world-ink); }
+.setup-heading>.eyebrow,.t-roster>.panel-heading .squad-count { color:var(--sun); }
+.t-roster>.panel-heading { color:var(--world-ink); }
+.collection-item,.panel,.podium-card { box-shadow:0 4px 0 var(--coral),0 10px 22px color-mix(in srgb,var(--ink) 14%,transparent); }
+.collection-item { background:var(--surface); border-color:var(--line); }.collection-item>.creature-card { border-bottom-color:var(--line); }
+.creature-card,.collection-item>.creature-card,.collection-item>.creature-card:hover { background:color-mix(in srgb,var(--card-color,var(--accent)) 11%,var(--surface)); }
+.creature-card .cost,.app-shell.battle-screen .hand-card .cost,.t-card-cost { color:var(--badge-ink); }
+.collection-info { background:var(--surface); }
+.deck-builder { border-top:4px solid var(--blue); }.ranks-intro,.profile-card { border-top:4px solid var(--sun); }
+.stock-sector-tabs,.filter-tabs { background:var(--recess); box-shadow:0 3px 0 var(--gold); }
+.stock-sector-tabs { border:1px solid var(--line); border-radius:8px; padding:6px; }
+.stock-sector-tabs button { background:transparent; color:var(--muted); }
+.filter-tabs button.active,.stock-sector-tabs button.active { background:var(--raised); color:var(--ink); border-color:var(--accent); }
+.button.primary { background:var(--sun); color:var(--badge-ink); border-color:color-mix(in srgb,var(--sun) 70%,var(--ink)); box-shadow:0 3px 0 var(--coral); }
+.button.primary:hover { background:color-mix(in srgb,var(--sun) 72%,var(--white)); color:var(--badge-ink); }
+.button.secondary { background:var(--raised); border-color:var(--line); color:var(--ink); }.button.secondary:hover { background:color-mix(in srgb,var(--world-sky) 18%,var(--raised)); }
+.button.danger { background:color-mix(in srgb,var(--danger) 12%,var(--surface)); border-color:var(--danger); color:var(--danger); }
+.tip-badge,.level-pill,.result-tag { color:var(--ink); }
+.is-captain .t-captain-pick { color:var(--badge-ink); }
+.modal,.t-dialog,
+.modal.result-modal,.t-dialog.result-modal {
+ isolation:isolate;
+ overflow:auto;
+ width:min(520px,calc(100vw - 48px));
+ max-width:min(520px,calc(100vw - 48px));
+ scrollbar-gutter:auto;
+ background:
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 3px 15px no-repeat,
+  linear-gradient(180deg,color-mix(in srgb,var(--sun) 22%,var(--surface)) 0 12px,var(--surface) 12px);
+ border:3px solid var(--gold);
+ border-radius:18px;
+ box-shadow:
+  inset 0 1px 0 color-mix(in srgb,var(--white) 62%,transparent),
+  0 6px 0 var(--coral),
+  0 24px 70px color-mix(in srgb,var(--ink) 32%,transparent);
+}
+.modal.result-modal,.t-dialog.result-modal,
+.modal.result-modal.is-victory,.modal.result-modal.is-defeat,.modal.result-modal.is-draw,
+.t-dialog.result-modal.is-victory,.t-dialog.result-modal.is-defeat,.t-dialog.result-modal.is-draw {
+ width:min(720px,calc(100vw - 48px));
+ max-width:min(720px,calc(100vw - 48px));
+}
+.modal::before,.t-dialog::before {
+ content:"";
+ position:absolute;
+ inset:7px;
+ pointer-events:none;
+ z-index:0;
+ border:1px solid color-mix(in srgb,var(--gold) 72%,transparent);
+ border-radius:12px;
+}
+.modal-close {
+ z-index:6;
+ background:var(--sun);
+ color:var(--badge-ink);
+ border:2px solid var(--ink);
+ border-radius:8px;
+ box-shadow:0 3px 0 var(--coral);
+}
+.modal-close:hover { background:color-mix(in srgb,var(--sun) 72%,var(--white)); }
+.modal-backdrop,.t-dialog-backdrop { background:color-mix(in srgb,var(--ink) 48%,transparent); }
+.modal.result-modal.is-victory,.modal.result-modal.is-defeat,.modal.result-modal.is-draw,
+.t-dialog.result-modal.is-victory,.t-dialog.result-modal.is-defeat,.t-dialog.result-modal.is-draw {
+ width:min(720px,calc(100vw - 48px));
+ max-width:min(720px,calc(100vw - 48px));
+ scrollbar-gutter:auto;
+ border-width:3px;
+ border-style:solid;
+ border-radius:18px;
+ box-shadow:
+  inset 0 1px 0 color-mix(in srgb,var(--white) 62%,transparent),
+  0 6px 0 var(--coral),
+  0 24px 70px color-mix(in srgb,var(--ink) 32%,transparent);
+}
+.modal.result-modal.is-victory,.t-dialog.result-modal.is-victory,.result-modal.is-victory {
+ background:
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 3px 15px no-repeat,
+  radial-gradient(ellipse at 50% 0,color-mix(in srgb,var(--sun) 38%,transparent),transparent 58%),
+  linear-gradient(180deg,color-mix(in srgb,var(--sun) 26%,var(--surface)) 0 12px,var(--surface) 12px);
+ border-color:var(--sun);
+}
+.modal.result-modal.is-defeat,.t-dialog.result-modal.is-defeat,.result-modal.is-defeat {
+ background:
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 3px 15px no-repeat,
+  radial-gradient(ellipse at 50% 0,color-mix(in srgb,var(--danger) 28%,transparent),transparent 58%),
+  linear-gradient(180deg,color-mix(in srgb,var(--danger) 22%,var(--surface)) 0 12px,var(--surface) 12px);
+ border-color:var(--danger);
+}
+.modal.result-modal.is-draw,.t-dialog.result-modal.is-draw,.result-modal.is-draw {
+ background:
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) 11px / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 11px calc(100% - 11px) / 3px 15px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 15px 3px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) calc(100% - 11px) calc(100% - 11px) / 3px 15px no-repeat,
+  radial-gradient(ellipse at 50% 0,color-mix(in srgb,var(--world-sky) 30%,transparent),transparent 58%),
+  linear-gradient(180deg,color-mix(in srgb,var(--world-sky) 20%,var(--surface)) 0 12px,var(--surface) 12px);
+ border-color:var(--world-sky);
+}
+.champion-badge {
+ color:var(--badge-ink);
+ background:var(--sun);
+ border:3px solid var(--ink);
+ border-radius:22px;
+ box-shadow:0 5px 0 var(--coral),0 0 0 7px color-mix(in srgb,var(--sun) 28%,transparent);
+}
+.result-modal.is-defeat .champion-badge { background:var(--danger); color:var(--white); box-shadow:0 5px 0 var(--ink); }
+.result-modal.is-draw .champion-badge { background:var(--world-sky); color:var(--white); box-shadow:0 5px 0 var(--ink); }
+.result-modal.is-victory .result-title { color:var(--sun); }
+.result-scoreboard,.result-reward {
+ background:var(--recess);
+ border:2px solid var(--gold);
+ box-shadow:inset 0 1px 0 color-mix(in srgb,var(--white) 35%,transparent),0 3px 0 var(--coral);
+}
+.how-to { color:var(--ink); padding-left:0; list-style:none; counter-reset:guide; }
+.how-to li { color:var(--ink); position:relative; padding:10px 12px 10px 48px; margin-bottom:8px; background:var(--recess); border:2px solid var(--gold); border-radius:10px; box-shadow:0 3px 0 var(--coral); }
+.how-to li::before { counter-increment:guide; content:counter(guide); position:absolute; left:10px; top:12px; width:26px; height:26px; display:grid; place-items:center; background:var(--sun); color:var(--badge-ink); border:2px solid var(--ink); border-radius:8px; font:800 12px var(--font-ui); }
+.how-to b { color:var(--ink); }
+.how-to p { color:var(--muted); }
+.world-topline>span { background:color-mix(in srgb,var(--world-panel) 92%,transparent); border-color:var(--world-line); color:var(--world-ink); }
+.world-topline>span:last-child { color:var(--world-sky); }
+.app-shell.battle-screen .arena-frame { background:var(--content-surface); border:2px solid var(--world-line); box-shadow:0 5px 0 var(--coral),0 10px 30px color-mix(in srgb,var(--ink) 18%,transparent); }
+.app-shell.battle-screen .battle-score { background:var(--world-panel); color:var(--world-ink); border-color:var(--world-line); }
+.app-shell.battle-screen .battle-score .opponent-name,.app-shell.battle-screen .score-label { color:var(--world-ink); }
+.app-shell.battle-screen .timer { background:var(--sun); color:var(--badge-ink); border:1px solid color-mix(in srgb,var(--sun) 70%,var(--ink)); border-radius:7px; }
+.app-shell.battle-screen .timer.urgent { background:var(--danger); color:var(--white); border-color:var(--ink); }
+.app-shell.battle-screen .battle-control { background:var(--content-surface); border-color:var(--world-line); }
+.app-shell.battle-screen .hand-heading,.app-shell.battle-screen .hand-heading button,.app-shell.battle-screen #hand-hint,.app-shell.battle-screen .elixir-row { color:var(--world-muted); }
+.app-shell.battle-screen .elixir-row strong,.app-shell.battle-screen .next-card { color:var(--world-ink); }
+.app-shell.battle-screen .elixir-label,.app-shell.battle-screen .next-card>span { color:var(--world-muted); }
+.app-shell.battle-screen .lane-controls button { background:var(--content-raised); border-color:var(--world-line); color:var(--world-ink); box-shadow:0 2px 0 var(--coral); }
+.app-shell.battle-screen .lane-controls button:hover { background:color-mix(in srgb,var(--world-sky) 24%,var(--content-raised)); }
+.app-shell.battle-screen .elixir-bar { background:var(--content-recess); border-color:var(--world-line); }.app-shell.battle-screen .elixir-bar>span { background:var(--world-sky); }
+.health-label { --hp:var(--world-sky); --edge:var(--accent-soft); }.health-label.is-rival { --hp:var(--danger); --edge:var(--raised); }
+.health-name { background:color-mix(in srgb,var(--surface) 92%,transparent); color:var(--ink); }.health-track { background:var(--recess); }
+.t-match-head { background:var(--world-panel); color:var(--world-ink); border:1px solid var(--world-line); border-radius:11px; padding:8px 13px; }
+.t-match-head .text-button,.t-match-head small,.t-match-head .t-quiet,.t-clock>span,.t-match-head .match-connection { color:var(--world-muted); }
+.t-match-head .t-icon { background:var(--content-raised); color:var(--world-ink); }.t-clock strong { color:var(--world-ink); }
+.t-viewport { border:2px solid var(--world-line); box-shadow:0 4px 0 var(--coral); }
+.t-combat-dock { background:var(--world-panel); border-color:var(--world-line); box-shadow:0 4px 0 var(--coral); }
+.t-resource-row,.t-resource-row b,.t-resource-row>span,.t-resource-row small { color:var(--world-muted); }.t-resource-row i { background:var(--world-sky); }
+.mobile-nav { background:color-mix(in srgb,var(--world-panel) 96%,transparent); border-top-color:var(--world-line); }.mobile-nav button { color:var(--world-muted); }
+.mobile-nav button.active { color:var(--sun); }.mobile-nav button.active .icon { background:var(--sun); color:var(--badge-ink); box-shadow:0 0 0 5px var(--sun); }
+@media(max-width:759px) {
+ .play-quickstart { gap:8px; }.play-quickstart>div { padding:10px; }
+ .topbar { box-shadow:none; }.wallet-connect { box-shadow:0 2px 0 var(--coral); }
+ .t-match-head { padding:6px 8px; }
+ body::before { filter:blur(3px); }
+}
+@media(prefers-reduced-transparency:reduce) { body::before { display:none; }.play-quickstart>div,.mobile-nav { background:var(--world-panel); } }
+
+/* Rebellion Squad (FontSpace freeware) for titles; Rajdhani for HUD copy. */
+.brand b,
+.play-intro h1,
+.world-caption h2,
+.launch-heading h2,
+.setup-heading h1,
+.page-heading h1,
+.modal h2,
+.t-dialog h2,
+.loading-game strong,
+.result-title,
+.ranks-hero h2,
+.ranks-intro h2,
+.profile-card h2,
+.profile-hero-copy h2,
+.collection-tools h3 {
+ font-family:var(--font-display);
+ font-weight:400;
+ font-synthesis:none;
+}
+.play-intro h1,
+.world-caption h2,
+.launch-heading h2,
+.setup-heading h1,
+.modal h2,
+.t-dialog h2,
+.result-title {
+ letter-spacing:.03em;
+}
+.play-intro h1 { font-size:clamp(40px,4.4vw,52px); }
+.page-heading h1 { font-size:34px; }
+.launch-heading h2 { font-size:34px; }
+.world-caption h2 { font-size:36px; }
+.setup-heading h1 { font-size:46px; }
+.game-picker b { font-family:var(--font-ui); font-size:17px; font-weight:700; letter-spacing:-.02em; font-synthesis:none; }
+.modal h2,.t-dialog h2 { font-size:clamp(32px,4.6vw,42px); }
+.result-modal .result-title,.result-modal h2.result-title {
+ font-size:clamp(44px,8vw,62px);
+ line-height:1;
+ margin:0 0 4px;
+ color:var(--ink);
+}
+.result-modal.is-victory .result-title { color:var(--sun); }
+.result-modal.is-defeat .result-title { color:var(--danger); }
+.result-modal.is-draw .result-title { color:var(--world-sky); }
+.result-overline {
+ display:inline-block;
+ margin:0 auto 10px;
+ padding:5px 12px;
+ background:var(--sun);
+ color:var(--badge-ink);
+ border:2px solid var(--ink);
+ border-radius:999px;
+ box-shadow:0 2px 0 var(--coral);
+ letter-spacing:.12em;
+}
+.result-modal.is-defeat .result-overline { background:var(--danger); color:var(--white); }
+.result-modal.is-draw .result-overline { background:var(--world-sky); color:var(--white); }
+.button,
+.desktop-nav button,
+.mobile-nav button,
+.filter-tabs button,
+.stock-sector-tabs button,
+.play-type-picker,
+.play-start,
+.timer,
+.elixir-label,
+.balance-chip b,
+.game-picker b {
+ font-family:var(--font-ui);
+}
+.play-intro h1 {
+ color:var(--ink);
+ background-image:linear-gradient(180deg,#365c44 0%,var(--ink) 40%,#15261c 100%);
+ -webkit-background-clip:text;
+ background-clip:text;
+ -webkit-text-fill-color:transparent;
+ filter:
+  drop-shadow(0 1px 0 #fff8ec)
+  drop-shadow(1px 1px 0 var(--gold))
+  drop-shadow(2px 3px 0 var(--coral))
+  drop-shadow(3px 5px 0 var(--ink))
+  drop-shadow(4px 8px 10px color-mix(in srgb,var(--ink) 28%,transparent));
+}
+.play-intro h1 em {
+ color:var(--world-sky);
+ background-image:linear-gradient(180deg,#7ed8e3 0%,var(--world-sky) 40%,#2a9aa8 100%);
+ -webkit-background-clip:text;
+ background-clip:text;
+ -webkit-text-fill-color:transparent;
+ font-style:normal;
+}
+.loading-game {
+ min-height:100dvh;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:18px;
+ background:var(--paper);
+ color:var(--ink);
+}
+.loading-brand {
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:18px;
+}
+.loading-logo {
+ width:min(28vw,160px);
+ height:min(28vw,160px);
+ object-fit:contain;
+ filter:drop-shadow(0 12px 22px color-mix(in srgb,var(--ink) 28%,transparent));
+}
+.loading-game strong {
+ font:400 clamp(40px,6.4vw,68px)/1 var(--font-display),Impact,"Arial Black",sans-serif;
+ letter-spacing:.04em;
+ font-synthesis:none;
+ white-space:nowrap;
+ color:var(--ink);
+ background-image:linear-gradient(180deg,#365c44 0%,var(--ink) 40%,#15261c 100%);
+ -webkit-background-clip:text;
+ background-clip:text;
+ -webkit-text-fill-color:transparent;
+ filter:
+  drop-shadow(0 1px 0 #fff8ec)
+  drop-shadow(1px 1px 0 var(--gold))
+  drop-shadow(2px 3px 0 var(--coral))
+  drop-shadow(3px 5px 0 var(--ink))
+  drop-shadow(4px 8px 10px color-mix(in srgb,var(--ink) 28%,transparent));
+}
+.loading-game p {
+ position:relative;
+ z-index:1;
+ margin:0;
+ font-family:var(--font-ui);
+ font-size:15px;
+ font-weight:600;
+ color:var(--ink);
+}
+
+/* HUD copy: +2px and ink-weight contrast on cream. Accent fills stay Game Level. */
+.brand { align-items:center; }
+.desktop-nav button { font-size:15px; color:var(--ink); }
+.help-link { font-size:14px; color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.wallet-connect { font-size:14px; }
+.page-context,.page-meta { font-size:14px; color:var(--ink); }
+.play-intro .eyebrow { font-size:11px; }
+.play-intro p,.collection-intro>p { font-size:16px; color:var(--ink); }
+.play-guide-link { font-size:15px; }
+.play-guide-link small { font-size:12px; color:var(--ink); }
+.world-caption>span { font-size:10px; letter-spacing:.14em; font-weight:800; }
+.world-caption p { font-size:15px; }
+.world-caption>div>span { font-size:12px; font-weight:700; padding:6px 10px; }
+.play-mode-description { font-size:14px; color:var(--ink); }
+.play-type-picker b { font-size:15px; }
+.play-type-picker span { font-size:11px; color:var(--ink); }
+.launch-footnote,#mode-content .launch-footnote { font-size:13px; color:var(--ink); }
+.lobby-squad>div>span { font-size:10px; color:var(--ink); }
+.lobby-squad .text-button { font-size:12px; font-weight:750; }
+.lobby-squad>small { font-size:11px; color:var(--ink); }
+.game-picker b small { font-size:12px; color:var(--ink); }
+.play-quickstart>div>span { font-size:12px; }
+.play-quickstart b { font-size:14px; }
+.play-quickstart p { font-size:13px; line-height:1.55; }
+.site-footer,.site-footer button { font-size:12px; }
+.eyebrow,.modal .eyebrow { font-size:12px; color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.button { font-size:15px; }
+.text-button { font-size:14px; color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.stock-company { font-size:12px; color:var(--ink); }
+.stock-company>span { font-size:10px; color:var(--ink); }
+.creature-role>span,.mini-stats { font-size:12px; color:var(--ink); }
+.mini-stats small { font-size:9px; color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.collection-info>.button { font-size:12px; }
+.collection-info>.text-button { font-size:12px; }
+.progression-tabs>span,.progression-tabs button { font-size:13px; color:var(--ink); }
+.stake-note { font-size:10px; color:var(--ink); }
+.modal p,.t-dialog p { font-size:15px; color:var(--ink); }
+.modal label { font-size:14px; color:var(--ink); }
+.modal .fineprint,.fineprint { font-size:13px; color:var(--ink); }
+.stock-reference-link,.market-detail { font-size:13px; color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.creature-stats { font-size:12px; color:var(--ink); }
+.creature-stats b { font-size:18px; }
+.how-to li { font-size:15px; }
+.how-to p { font-size:14px; color:var(--ink); }
+.staking-ladder small { font-size:10px; color:var(--ink); }
+.staking-ladder b { font-size:13px; }
+.pot-summary span { font-size:13px; color:var(--ink); }
+.level-pill { font-size:12px; color:var(--ink); }
+.in-deck { font-size:14px; color:var(--ink); }
+.staking-ladder b,.pot-summary b,.online-entry b { color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
+.filter-tabs button,.stock-sector-tabs button { font-size:13px; }
+.large .card-bottom { font-size:11px; color:var(--ink); }

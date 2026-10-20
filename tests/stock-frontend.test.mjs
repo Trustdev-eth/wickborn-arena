@@ -43,7 +43,7 @@ test('stock render filtering leaves authoritative snapshots untouched',()=>{
 });
 test('Wickborn brand and all card renderers use the new artwork',()=>{
  const client=readFileSync(new URL('../public/game/client.js',import.meta.url),'utf8'),css=readFileSync(new URL('../app/wickborn.css',import.meta.url),'utf8');
- assert.ok(client.includes('WICKBORN'));assert.ok(client.includes('/brand/wickborn-bull.png'));assert.ok(client.includes('spriteMarkup'));assert.ok(css.includes('background-image:var(--sprite-art,none)'));
+ assert.ok(client.includes('WICKBORN'));assert.ok(client.includes('/brand/wickborn-mark.svg'));assert.ok(client.includes('spriteMarkup'));assert.ok(css.includes('background-image:var(--sprite-art,none)'));
  assert.ok(readFileSync(new URL('../public/game/renderer-2d.js',import.meta.url),'utf8').includes('SPRITE_ART.map'));
- for(const path of ['../public/game/stock-creatures.png','../public/brand/wickborn-bull.png'])assert.ok(readFileSync(new URL(path,import.meta.url)).byteLength>1000);
+ assert.ok(readFileSync(new URL('../public/game/stock-creatures.png',import.meta.url)).byteLength>1000);assert.match(readFileSync(new URL('../public/brand/wickborn-mark.svg',import.meta.url),'utf8'),/<svg[^>]*viewBox="0 0 64 64"/);
 });

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+ <title>Wickborn Arena</title>
+ <desc>A palm-green arena shield with tea-cookie ivory, ochre horns and a water-sports river.</desc>
+ <path d="M32 4 56 13v20c0 13-10 23-24 28C18 56 8 46 8 33V13L32 4Z" fill="#203b2a" stroke="#eec889" stroke-width="2.5" stroke-linejoin="round"/>
+ <path d="m32 9 19 7v17c0 10-7 18-19 23-12-5-19-13-19-23V16l19-7Z" stroke="#3dc0cf" stroke-width="1.2"/>
+ <path d="M22 23c-8-2-11-7-9-14 1 5 5 7 10 8l3 5m16 1c8-2 11-7 9-14-1 5-5 7-10 8l-3 5" fill="#eec889"/>
+ <path d="M26 13h4v4h4v-4h4v9H26v-9Z" fill="#eec889"/>
+ <path d="m17 25 7-1 4 16 4-11 4 11 4-16 7 1-8 23h-6l-1-4-1 4h-6l-8-23Z" fill="#f4e0c0"/>
+ <path d="m17 25 7-1 4 16 4-11" stroke="#fff8ec" stroke-width="1.1" stroke-linejoin="round"/>
+ <path d="M24 52c3-2 5 2 8 0s5 2 8 0" stroke="#3dc0cf" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,5 +1,33 @@
 # Validation and launch boundary
 
+## Component palette follow-up · 2026-10-19
+
+Content panels, card details, controls, dialogs and toasts now share slate-blue
+surface tokens with the existing navy world backdrop. The header/favicon use a
+new hand-authored arena crest. The backdrop CSS block and all background,
+portrait, live-model and audio files match `8e715bc`; backend, contracts, rules
+and network code are unchanged. Layout breakpoints and interactions are retained.
+
+All 26 existing frontend/art/presentation tests, TypeScript, the production build
+and `git diff --check` passed. The tested normal text/action pairs range from
+5.17:1 to 10.81:1 contrast. This is a limited color check. Browser/device visual
+QA was unavailable; no preview server, external deployment or GitHub push was run.
+
+## Frontend update · 2026-10-19
+
+See [LIVE-3D-AND-AUDIO.md](LIVE-3D-AND-AUDIO.md) for the current theme, sculpted landscape, fighter revisions, original audio bank and editor assets. This update was checked against commit `3515961`; backend, contracts, gameplay engines, financial flows and approved bitmap artwork are unchanged. The dated infrastructure results below are historical and were not rerun as part of the visual/audio update.
+
+New coverage checks sound activation/deduplication/muting/visibility/reconnect handling, mix voice limits, WAV headroom, exposed river geometry, bridge walking height, scenery instancing and disposal, and imported GLB geometry/animation channels. Browser/GPU/device listening and visual playtesting remain unverified.
+
+- 175 tests passed, 0 failed, including the nine new audio/asset tests.
+- TypeScript and the production build passed; `git diff --check` passed.
+- All 13 WAV masters and 13 MP3 clips matched independent regeneration byte for byte. The 26.35-second preview reel decodes successfully; the complete delivery bank is 315,123 bytes.
+- All twelve animated GLBs load back into Three and retain their live geometry bounds. The arena export preserves its instanced scenery transforms.
+- The shared dark HUD text/selected-control pairs and both health-fill colors exceed 4.5:1 against their tested solid backgrounds. This is a limited color check, not a whole-site accessibility audit.
+- Protected source paths and approved image bytes match `3515961`. No external deploy, publication or GitHub push was performed.
+
+## Historical infrastructure validation
+
 Checked 2026-10-15. These results distinguish source/runtime tests from external production performance and visual QA.
 
 ## Automated checks

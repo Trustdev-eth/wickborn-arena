@@ -2,169 +2,217 @@
   {
     "id": 0,
     "file": "/game/characters/aaplx.png",
+    "optimized": "/game/characters/aaplx.webp",
+    "source": "art/portraits/aaplx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 25,
-      "top": 52,
-      "width": 347,
-      "height": 325
+      "left": 0,
+      "top": 0,
+      "width": 1364,
+      "height": 1145
     },
-    "sourceSilhouettePixels": 77412,
+    "sourceSilhouettePixels": 701360,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 1,
     "file": "/game/characters/tslax.png",
+    "optimized": "/game/characters/tslax.webp",
+    "source": "art/portraits/tslax.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 406,
-      "top": 44,
-      "width": 318,
-      "height": 329
+      "left": 0,
+      "top": 0,
+      "width": 1344,
+      "height": 1145
     },
-    "sourceSilhouettePixels": 62100,
+    "sourceSilhouettePixels": 628388,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 2,
     "file": "/game/characters/msftx.png",
+    "optimized": "/game/characters/msftx.webp",
+    "source": "art/portraits/msftx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 745,
-      "top": 81,
-      "width": 362,
-      "height": 292
+      "left": 0,
+      "top": 19,
+      "width": 1362,
+      "height": 1126
     },
-    "sourceSilhouettePixels": 71595,
+    "sourceSilhouettePixels": 830635,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 3,
     "file": "/game/characters/googlx.png",
+    "optimized": "/game/characters/googlx.webp",
+    "source": "art/portraits/googlx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 1129,
-      "top": 36,
-      "width": 265,
-      "height": 341
+      "left": 0,
+      "top": 0,
+      "width": 1374,
+      "height": 1145
     },
-    "sourceSilhouettePixels": 49658,
+    "sourceSilhouettePixels": 690086,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 4,
     "file": "/game/characters/amznx.png",
+    "optimized": "/game/characters/amznx.webp",
+    "source": "art/portraits/amznx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 31,
-      "top": 385,
-      "width": 346,
-      "height": 306
+      "left": 0,
+      "top": 19,
+      "width": 1361,
+      "height": 1126
     },
-    "sourceSilhouettePixels": 56822,
+    "sourceSilhouettePixels": 746287,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 5,
     "file": "/game/characters/nvdax.png",
+    "optimized": "/game/characters/nvdax.webp",
+    "source": "art/portraits/nvdax.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 398,
-      "top": 374,
-      "width": 346,
-      "height": 331
+      "left": 0,
+      "top": 0,
+      "width": 1360,
+      "height": 1145
     },
-    "sourceSilhouettePixels": 85292,
+    "sourceSilhouettePixels": 889584,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 6,
     "file": "/game/characters/jnjx.png",
+    "optimized": "/game/characters/jnjx.webp",
+    "source": "art/portraits/jnjx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 768,
-      "top": 381,
-      "width": 312,
-      "height": 332
+      "left": 0,
+      "top": 13,
+      "width": 1358,
+      "height": 1132
     },
-    "sourceSilhouettePixels": 58428,
+    "sourceSilhouettePixels": 575634,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 7,
     "file": "/game/characters/metax.png",
+    "optimized": "/game/characters/metax.webp",
+    "source": "art/portraits/metax.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 1081,
-      "top": 390,
-      "width": 338,
-      "height": 323
+      "left": 0,
+      "top": 0,
+      "width": 1374,
+      "height": 1145
     },
-    "sourceSilhouettePixels": 74187,
+    "sourceSilhouettePixels": 893865,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 8,
     "file": "/game/characters/jpmx.png",
+    "optimized": "/game/characters/jpmx.webp",
+    "source": "art/portraits/jpmx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 30,
-      "top": 737,
-      "width": 371,
-      "height": 300
+      "left": 33,
+      "top": 23,
+      "width": 1338,
+      "height": 1122
     },
-    "sourceSilhouettePixels": 80687,
+    "sourceSilhouettePixels": 733939,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 9,
     "file": "/game/characters/nflxx.png",
+    "optimized": "/game/characters/nflxx.webp",
+    "source": "art/portraits/nflxx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 406,
-      "top": 728,
-      "width": 357,
-      "height": 311
+      "left": 0,
+      "top": 41,
+      "width": 1342,
+      "height": 1095
     },
-    "sourceSilhouettePixels": 67177,
+    "sourceSilhouettePixels": 584366,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 10,
     "file": "/game/characters/mcdx.png",
+    "optimized": "/game/characters/mcdx.webp",
+    "source": "art/portraits/mcdx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 771,
-      "top": 743,
-      "width": 265,
-      "height": 303
+      "left": 0,
+      "top": 13,
+      "width": 1360,
+      "height": 1118
     },
-    "sourceSilhouettePixels": 54792,
+    "sourceSilhouettePixels": 699970,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   },
   {
     "id": 11,
     "file": "/game/characters/hoodx.png",
+    "optimized": "/game/characters/hoodx.webp",
+    "source": "art/portraits/hoodx.png",
+    "sourceType": "stylized-3d",
     "width": 512,
     "height": 512,
     "sourceBounds": {
-      "left": 1070,
-      "top": 729,
-      "width": 342,
-      "height": 321
+      "left": 26,
+      "top": 0,
+      "width": 1334,
+      "height": 1124
     },
-    "sourceSilhouettePixels": 71844,
+    "sourceSilhouettePixels": 797541,
+    "sourceOpaqueEdgePixels": 0,
     "paddingMinimum": 40
   }
 ]

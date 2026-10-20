@@ -28,5 +28,5 @@ export function surfaceParameters(id,kind,library){
  if(kind==='glow')return {roughness:.4,metalness:.12};
  if(kind==='gel')return {roughness:.23,metalness:0};
  const type=kind==='metal'?'metal':kind==='cloth'?'cloth':[0,2,6,7,8].includes(id)?'hide':'fur';
- return {...library[type],roughness:type==='metal'?.43:type==='cloth'?.88:.81,metalness:type==='metal'?.64:0,bumpScale:type==='metal'?.0006:type==='cloth'?.0015:.0022};
+ return {...library[type],roughness:type==='metal'?.37:type==='cloth'?.78:.60,metalness:type==='metal'?.34:0,bumpScale:type==='metal'?.0005:type==='cloth'?.0012:.0013};
 }

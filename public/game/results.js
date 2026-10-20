@@ -11,7 +11,7 @@ export function animateResult(dialog,{motion=true,winning=false}={}){
  const write=f=>counters.forEach(({el,value,prefix})=>el.textContent=prefix+Math.round(value*f).toLocaleString());
  if(!motion){write(1);return ()=>{};}
  let frame=0,start=0,last=0,stopped=false,canvas=null,ctx=null,width=0,height=0,burstIndex=0;
- const particles=[],bursts=[.12,.58,1.08,1.65],colors=['#ffe5a1','#f4c35b','#67cbed','#fff4cf'];
+ const particles=[],bursts=[.12,.58,1.08,1.65],colors=['#cdd10f','#eec889','#3dc0cf','#f4e0c0'];
  const parent=dialog.parentElement;
  function resize(){if(!canvas)return;const rect=parent.getBoundingClientRect();width=rect.width;height=rect.height;const scale=Math.min(globalThis.devicePixelRatio||1,1.5);canvas.width=Math.round(width*scale);canvas.height=Math.round(height*scale);ctx?.setTransform(scale,0,0,scale,0,0);}
  if(winning){canvas=document.createElement('canvas');canvas.className='victory-particles';canvas.setAttribute('aria-hidden','true');ctx=canvas.getContext('2d');parent.prepend(canvas);resize();globalThis.addEventListener('resize',resize);}

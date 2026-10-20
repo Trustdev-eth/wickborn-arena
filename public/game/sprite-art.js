@@ -5,7 +5,7 @@ export const spriteUrl=id=>SPRITE_ART[id]||'';
 
 export function spriteMarkup(id,name,cls=''){
  const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- return `<span class="sprite ${escape(cls)}" style="--sprite-art:url('${spriteUrl(id)}')" role="img" aria-label="${escape(name)}"></span>`;
+ return `<span class="sprite ${escape(cls)}" style="--sprite-art:url('${spriteUrl(id)}');--sprite-art-webp:url('${spriteUrl(id).replace(/\.png$/,'.webp')}')" role="img" aria-label="${escape(name)}"></span>`;
 }
 export function fitSprite(width,height,size){
  const scale=size/Math.max(width,height);return {width:width*scale,height:height*scale};

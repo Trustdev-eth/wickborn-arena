@@ -7,16 +7,16 @@ export function surfaceHeight(x,y){return Math.abs(y-380)<46&&(Math.abs(x-135)<3
 // Frame the ground and actual tower/tree heights rather than an empty bounding box.
 export function arenaFramePoints(){
  const points=[];
- for(const x of [-6.3,6.3])for(const z of [-7.9,7.9])points.push(new THREE.Vector3(x,-.65,z));
+ for(const x of [-6.6,6.6])for(const z of [-8.1,8.1])points.push(new THREE.Vector3(x,-1.5,z));
  for(const x of [-6,6])for(const z of [-7.2,7.2])points.push(new THREE.Vector3(x,1.6,z));
- for(const x of [-3.3,3.3])for(const z of [-4.18,4.18])points.push(new THREE.Vector3(x,2.25,z));
+ for(const x of [-3.3,3.3])for(const z of [-4.18,4.18])points.push(new THREE.Vector3(x,2.50,z));
  for(const z of [-6.12,6.12])points.push(new THREE.Vector3(0,2.75,z));
  for(const x of [-6.95,6.95])for(const z of [-5.5,5.5])points.push(new THREE.Vector3(x,2.5,z));
  return points;
 }
 export function fitCamera(camera,aspect,orbit=0,cinematic=false,zoom=1){
  camera.aspect=aspect;camera.fov=cinematic?39:36;camera.near=.1;camera.far=160;camera.clearViewOffset();camera.updateProjectionMatrix();
- const pitch=(cinematic?50:60)*Math.PI/180,target=new THREE.Vector3(0,.1,0),direction=new THREE.Vector3(Math.sin(orbit)*Math.cos(pitch),Math.sin(pitch),Math.cos(orbit)*Math.cos(pitch)),points=arenaFramePoints();
+ const pitch=(cinematic?44:53)*Math.PI/180,target=new THREE.Vector3(0,.1,0),direction=new THREE.Vector3(Math.sin(orbit)*Math.cos(pitch),Math.sin(pitch),Math.cos(orbit)*Math.cos(pitch)),points=arenaFramePoints();
  const measure=distance=>{camera.position.copy(target).addScaledVector(direction,distance);camera.lookAt(target);camera.updateMatrixWorld(true);const screen=points.map(p=>p.clone().project(camera));return {minX:Math.min(...screen.map(p=>p.x)),maxX:Math.max(...screen.map(p=>p.x)),minY:Math.min(...screen.map(p=>p.y)),maxY:Math.max(...screen.map(p=>p.y))};};
  let lo=9,hi=100;for(let n=0;n<28;n++){const mid=(lo+hi)/2,b=measure(mid);if(b.maxX-b.minX<1.88&&b.maxY-b.minY<1.80)hi=mid;else lo=mid;}
  const b=measure(hi/zoom);camera.projectionMatrix.elements[8]+=(b.minX+b.maxX)/2;camera.projectionMatrix.elements[9]+=(b.minY+b.maxY)/2;camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();return camera;
