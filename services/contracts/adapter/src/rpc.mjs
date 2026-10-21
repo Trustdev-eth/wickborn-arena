@@ -3,10 +3,13 @@ import {readFileSync} from 'node:fs';
 import {dirname,isAbsolute,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const adapterRoot=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+function adapterRoot(){
+ if(typeof import.meta.url!=='string')return '.';
+ return resolve(dirname(fileURLToPath(import.meta.url)),'..');
+}
 export function resolveKeypairPath(path){
  if(!path)return path;
- return isAbsolute(path)?path:resolve(adapterRoot,path);
+ return isAbsolute(path)?path:resolve(adapterRoot(),path);
 }
 
 const LOCAL_RPC=/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/i;
