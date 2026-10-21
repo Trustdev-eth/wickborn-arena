@@ -53,6 +53,25 @@ test('skirmish rooms acknowledge move commands and hide the rival hand from side
  assert.deepEqual(latest.state.hand[0],[]);
  assert.deepEqual(latest.state.units.find(u=>u.captain&&u.p===0).order,{x:200,y:500});
 });
+test('the other player sees deployed fighters walk instead of teleports',async()=>{
+ const a=await connect('skirmish-squad',0),b=await connect('skirmish-squad',1);
+ const p=new TacticsPredictor({side:1});
+ p.receive(b.frames.find(f=>f.state),0);
+ a.send(JSON.stringify({protocol:TACTICS_PROTOCOL,type:'deploy',slot:0,x:135,y:520,actionId:'skirmish-squad-0001'}));
+ await waitFor(()=>a.frames.find(f=>f.type==='ack'&&f.actionId==='skirmish-squad-0001'));
+ await waitFor(()=>b.frames.some(f=>f.state?.units.some(u=>!u.captain&&u.p===0)));
+ let last=null,maxJump=0,moved=0;const start=Date.now();
+ while(Date.now()-start<800){
+  await sleep(16);
+  const wall=Date.now()-start,latest=b.frames.filter(f=>f.state).at(-1);
+  p.receive(latest,wall);p.frame(wall);
+  const u=p.state.units.find(u=>!u.captain&&u.p===0);
+  if(u&&last){const jump=Math.hypot(u.x-last.x,u.y-last.y);maxJump=Math.max(maxJump,jump);moved+=jump;}
+  if(u)last={x:u.x,y:u.y};
+ }
+ assert.ok(moved>8,`deployed fighter only travelled ${moved.toFixed(1)}px`);
+ assert.ok(maxJump<16,`deployed fighter jumped ${maxJump.toFixed(1)}px between frames`);
+});
 test('the other player sees a walking captain instead of teleports',async()=>{
  const a=await connect('skirmish-walk',0),b=await connect('skirmish-walk',1);
  const p=new TacticsPredictor({side:1});

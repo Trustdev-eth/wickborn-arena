@@ -1,6 +1,6 @@
 import {applyTacticsCommand,stepTactics} from './engine.js';
 import {TACTICS_STEP} from './config.js';
-import {adoptKinematics,followClock} from '../smooth.js';
+import {adoptKinematics,followClock,seedVelocity} from '../smooth.js';
 
 // Local captain input is applied immediately, then rebased onto authoritative
 // snapshots so Skirmish online feels like practice without awarding a disconnect win.
@@ -20,9 +20,10 @@ export class TacticsPredictor {
  prepare(sim){sim.seed??=1;sim.commands??=[];sim.recentEvents??=[];return sim;}
  rebuild(){
   if(!this.auth)return;const prev=this.state,sim=this.prepare(structuredClone(this.auth)),goal=Math.min(Math.max(prev?.time??sim.time,sim.time),sim.time+this.maxAhead),queue=[...this.pending].sort((a,b)=>a.at-b.at);
+  seedVelocity(prev,sim);
   const replay=()=>{while(queue.length&&queue[0].at<=sim.time+1e-6)this.apply(sim,queue.shift());};
   replay();for(let n=0;sim.status==='playing'&&sim.time+TACTICS_STEP<=goal+1e-6&&n<80;n++){stepTactics(sim);replay();}while(queue.length)this.apply(sim,queue.shift());
-  if(sim.status==='playing')adoptKinematics(prev,sim,this.side,{onlyCaptains:!this.pending.length});
+  if(sim.status==='playing')adoptKinematics(prev,sim,this.side,{squads:true});
   this.state=sim;
  }
  frame(now=performance.now()){

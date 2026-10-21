@@ -92,6 +92,46 @@ test('the rival captain keeps walking toward a live order between snapshots',()=
  assert.ok(after<before-15,`rival captain did not close on the order (${after.toFixed(1)}px left from ${before.toFixed(1)}px)`);
 });
 
+test('deployed fighters keep walking between sparse snapshots',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const own={protocol:TACTICS_PROTOCOL,type:'deploy',slot:0,x:135,y:520,actionId:'own-squad-0001'};
+ const foe={protocol:TACTICS_PROTOCOL,type:'deploy',slot:0,x:465,y:240,actionId:'foe-squad-0001'};
+ assert.equal(p.predict(own).ok,true);
+ server.receive('a',own);server.receive('b',foe);
+ let wall=0,synced=0,maxJump=0,moved=0,last=new Map();
+ for(;wall<=1500;wall+=16){
+  while(synced+150<=wall){synced+=150;server.advance(.15);p.receive(server.snapshot('a'),synced);}
+  p.frame(wall);
+  for(const u of p.state.units.filter(u=>!u.captain)){
+   const prev=last.get(u.id);
+   if(prev){const jump=Math.hypot(u.x-prev.x,u.y-prev.y);maxJump=Math.max(maxJump,jump);moved+=jump;}
+   last.set(u.id,{x:u.x,y:u.y});
+  }
+ }
+ assert.ok(p.state.units.some(u=>!u.captain&&u.p===0),'own fighter exists');
+ assert.ok(p.state.units.some(u=>!u.captain&&u.p===1),'rival fighter exists');
+ assert.ok(moved>20,`fighters only travelled ${moved.toFixed(1)}px`);
+ assert.ok(maxJump<18,`fighter jumped ${maxJump.toFixed(1)}px between frames`);
+});
+
+test('own squad does not snap when a captain move is acknowledged',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const deploy={protocol:TACTICS_PROTOCOL,type:'deploy',slot:0,x:135,y:520,actionId:'squad-ack-0001'};
+ const move={protocol:TACTICS_PROTOCOL,type:'move',x:200,y:500,actionId:'squad-ack-0002'};
+ assert.equal(p.predict(deploy).ok,true);
+ server.receive('a',deploy);
+ for(let wall=16;wall<=400;wall+=16)p.frame(wall);
+ p.predict(move);
+ const fighter=()=>p.state.units.find(u=>!u.captain&&u.p===0),before=fighter();
+ server.receive('a',move);server.advance(.2);
+ p.receive(server.snapshot('a'),400);
+ const after=fighter();
+ assert.ok(before&&after);
+ assert.ok(Math.hypot(after.x-before.x,after.y-before.y)<14,`fighter jumped ${Math.hypot(after.x-before.x,after.y-before.y).toFixed(1)}px on captain ack`);
+});
+
 test('a rejected prediction is removed once its action id is acknowledged',()=>{
  const server=room(),p=new TacticsPredictor({side:0});
  p.receive(server.snapshot('a'),0);

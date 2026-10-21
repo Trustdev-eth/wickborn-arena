@@ -7,18 +7,33 @@ export function followClock(samples,now,rtt,maxLead){
  return Math.max(...list.map(s=>s.offset))+Math.min(maxLead,rtt);
 }
 
-// Keep own-side x/y across a snapshot rebase when the jump is prediction lead or
-// resim noise, not a teleport. Rival units keep the rebuilt path so they can walk.
-export function adoptKinematics(prev,next,side,{onlyCaptains=false}={}){
+// Keep predicted x/y across a snapshot rebase when the jump is prediction lead or
+// resim noise, not a teleport. Rival captains keep the rebuilt path so they can walk.
+export function adoptKinematics(prev,next,side,{onlyCaptains=false,squads=false}={}){
  if(!prev?.units?.length||!next?.units?.length)return;
  const byId=new Map(prev.units.map(u=>[u.id,u]));
  for(const u of next.units){
-  if(side!==undefined&&u.p!==side)continue;
-  if(onlyCaptains&&!u.captain)continue;
+  const own=side===undefined||u.p===side;
+  if(u.captain){if(!own)continue;}
+  else if(onlyCaptains)continue;
+  else if(!own&&!squads)continue;
   const old=byId.get(u.id);if(!old||old.card!==u.card||old.p!==u.p)continue;
   if(u.dash||old.dash)continue;
   const jump=Math.hypot(u.x-old.x,u.y-old.y);if(jump<=0||jump>=SNAP)continue;
   u.x=old.x;u.y=old.y;if(Number.isFinite(old.facingX))u.facingX=old.facingX;if(Number.isFinite(old.facingY))u.facingY=old.facingY;
+  if(Number.isFinite(old.vx))u.vx=old.vx;if(Number.isFinite(old.vy))u.vy=old.vy;
+ }
+}
+
+// Auto units lose vx/vy on some frames. Seed the last predicted velocity onto the
+// authoritative pose before catch-up so they do not restart from a standstill.
+export function seedVelocity(prev,next){
+ if(!prev?.units?.length||!next?.units?.length)return;
+ const byId=new Map(prev.units.map(u=>[u.id,u]));
+ for(const u of next.units){
+  const old=byId.get(u.id);if(!old||old.card!==u.card||old.p!==u.p)continue;
+  if(u.dash||old.dash)continue;
+  if(Math.hypot(u.vx||0,u.vy||0)>4)continue;
   if(Number.isFinite(old.vx))u.vx=old.vx;if(Number.isFinite(old.vy))u.vy=old.vy;
  }
 }
@@ -38,7 +53,12 @@ export class MotionTracker {
    const speed=u.action==='dash'?900:Math.max(MAX_SPEED,Math.hypot(u.vx||0,u.vy||0),u.captain?130:0);
    const last=s[s.length-1],allowed=speed*Math.max(dt,Math.abs(renderTime-t.rt),.05)+2;
    // Same-tick rebases are corrections, not a new sample. Keep the recorded path and ease toward the new point.
-   if(last&&Math.abs(last.t-time)<1e-6){const jump=Math.hypot(u.x-last.x,u.y-last.y);if(jump>SNAP||jump<=allowed){last.x=u.x;last.y=u.y;}}
+   if(last&&Math.abs(last.t-time)<1e-6){
+    const jump=Math.hypot(u.x-last.x,u.y-last.y);
+    if(jump>SNAP){last.x=u.x;last.y=u.y;}
+    else if(jump<=allowed){last.x=u.x;last.y=u.y;}
+    else{last.x+=(u.x-last.x)*.2;last.y+=(u.y-last.y)*.2;}
+   }
    else s.push({t:time,x:u.x,y:u.y});if(s.length>HISTORY)s.shift();
    const [x,y]=sampleAt(s,renderTime);
    if(t.rawX!==null){const jump=Math.hypot(x-t.rawX,y-t.rawY);if(jump>SNAP){t.errX=0;t.errY=0;}else if(jump>allowed){t.errX=t.rawX-x;t.errY=t.rawY-y;}}

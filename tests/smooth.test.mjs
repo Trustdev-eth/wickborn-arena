@@ -43,6 +43,16 @@ test('prediction rebases keep own captains and leave rivals on the rebuilt path'
  assert.equal(next.units[2].y,230);
 });
 
+test('squad rebases keep deployed fighters on both sides without moving rival captains',()=>{
+ const prev={units:[{id:1,p:0,card:1,captain:true,x:100,y:400},{id:3,p:0,card:0,x:120,y:500},{id:2,p:1,card:1,captain:true,x:200,y:200},{id:4,p:1,card:0,x:300,y:220}]};
+ const next={units:[{id:1,p:0,card:1,captain:true,x:118,y:400},{id:3,p:0,card:0,x:150,y:480},{id:2,p:1,card:1,captain:true,x:200,y:230},{id:4,p:1,card:0,x:310,y:250}]};
+ adoptKinematics(prev,next,0,{squads:true});
+ assert.equal(next.units[0].x,100);
+ assert.equal(next.units[1].x,120);
+ assert.equal(next.units[2].y,230);
+ assert.equal(next.units[3].x,300);
+});
+
 test('repeated rebases at the same sim time do not grow per-frame travel',()=>{
  const tracker=new MotionTracker(),u={id:1,x:100,y:400};
  tracker.update([u],1,1,.016);
