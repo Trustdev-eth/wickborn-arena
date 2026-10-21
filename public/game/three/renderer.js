@@ -77,7 +77,7 @@ export function create3DRenderer(canvas){
   tracker.update(g.units,g.time,MotionTracker.renderTime(g,options.clock),options.paused?0:dt);
   for(const u of g.units){
    live.add(u.id);const e=units.get(u.id)||createEntry(u,side,t,g.levels[u.p][u.card]),track=tracker.get(u.id);e.lastX=u.x;e.lastY=u.y;
-   const before=e.position.clone();e.position.copy(boardPoint(track.x,track.y,side));const travel=before.distanceTo(e.position);e.distance+=travel;e.moving=THREE.MathUtils.damp(e.moving,travel/dt>.12?1:0,9,dt);
+   const before=e.position.clone();e.position.copy(boardPoint(track.x,track.y,side));const travel=before.distanceTo(e.position);e.distance+=travel;e.moving=THREE.MathUtils.damp(e.moving,travel/dt>.08?1:0,16,dt);
    const aim=travel>.0002?e.position.clone().sub(before):new THREE.Vector3(u.facingX||0,0,(side===1?-1:1)*(u.facingY||0));const heading=e.heading;if(aim.lengthSq()>.00001)e.heading=turnAngle(e.heading,Math.atan2(aim.x,aim.z),1-Math.exp(-dt*13));e.turn=Math.atan2(Math.sin(e.heading-heading),Math.cos(e.heading-heading))/dt;
    e.hit=Math.max(0,e.hit-dt*4);if(u.hp<e.hp)e.hit=Math.max(e.hit,.55);e.hp=u.hp;e.statusHalo.visible=u.stun>0||u.slow>0;e.statusMaterial.color.set(u.stun>0?'#ffe067':'#8be5ff');e.statusHalo.rotation.z=motion?t*3:0;e.recoil.multiplyScalar(Math.exp(-dt*13));
    e.rig.root.position.copy(e.position).addScaledVector(e.recoil,e.hit);const hover=e.rig.float+(e.rig.kind==='fly'&&motion?Math.sin(t*4+u.id)*.022:0);e.rig.root.position.y=surfaceHeight(track.x,track.y)+.055+hover;e.rig.root.rotation.y=e.heading;

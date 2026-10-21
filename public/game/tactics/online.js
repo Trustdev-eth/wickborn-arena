@@ -39,7 +39,7 @@ export class SkirmishConnection{
  accept(packet){if(this.closed||!isSkirmishSnapshot(packet)||this.side!==null&&packet.side!==this.side)return false;if(!this.buffer.push(packet))return false;this.side=packet.side;this.ready=true;this.onSnapshot(packet);return true;}
  start(initial){
   this.realtime=initial.transport==='realtime'||!!initial.connection?.url;
-  this.buffer.delay=this.realtime?80:120;this.buffer.maxExtrapolate=this.realtime?80:160;
+  this.buffer.delay=this.realtime?40:90;this.buffer.maxExtrapolate=this.realtime?160:180;
   if(!this.accept(initial))throw new Error('The server did not provide a Skirmish match.');
   this.onStatus(this.realtime?'Live connection':'HTTP connection');
   if(this.realtime)this.connect(initial.connection);else this.poll();

@@ -1,7 +1,11 @@
 import {STEP} from './engine.js';
 
-const MAX_SPEED=110,SETTLE=12,HISTORY=5;
+const MAX_SPEED=110,SETTLE=16,HISTORY=5;
 export const SNAP=140;
+export function followClock(samples,now,rtt,maxLead){
+ const fresh=samples.filter(s=>now-s.at<=400),list=fresh.length?fresh:samples.slice(-1);
+ return Math.max(...list.map(s=>s.offset))+Math.min(maxLead,rtt);
+}
 
 // Keep predicted x/y across a snapshot rebase when the jump is resim noise, not a teleport.
 export function adoptKinematics(prev,next){

@@ -9,7 +9,7 @@ export class SnapshotBuffer {
   this.lastSequence=sequence;this.lastArrival=arrival;this.frames.push({state:packet.state,arrival,sequence});this.frames=this.frames.slice(-24);return true;
  }
  sample(now=performance.now()){
-  if(!this.frames.length)return null;const last=this.frames.at(-1),gaps=[...this.gaps].sort((a,b)=>a-b),spacing=gaps.length?gaps[Math.floor((gaps.length-1)*.8)]:this.delay*.65,delay=Math.min(500,Math.max(this.delay,spacing*1.3));
+  if(!this.frames.length)return null;const last=this.frames.at(-1),gaps=[...this.gaps].sort((a,b)=>a-b),spacing=gaps.length?gaps[Math.floor((gaps.length-1)*.8)]:this.delay*.65,delay=Math.min(180,Math.max(this.delay,spacing*1.15));
   let target=last.state.time+(now-last.arrival-delay)/1000;target=Math.max(this.lastRender,target);this.lastRender=target;
   let a=this.frames[0],b=null;for(const f of this.frames){if(f.state.time<=target)a=f;else{b=f;break;}}
   if(!b){const prev=this.frames.length>1?this.frames.at(-2):last,extra=Math.max(0,Math.min(this.maxExtrapolate/1000,target-last.state.time)),gap=last.state.time-prev.state.time,old=new Map(prev.state.units.map(u=>[u.id,u]));

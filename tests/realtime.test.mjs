@@ -29,6 +29,14 @@ test('real Durable Object sockets acknowledge commands exactly once and hide the
 test('reconnect restores the same authoritative room and tickets cannot be replayed',async()=>{const id='reconnect-test',token=await ticket(id,0),url='https://realtime.test/matches/'+id+'/socket?ticket='+token,r=await mf.dispatchFetch(url,{headers:{Upgrade:'websocket',Origin:origin}});assert.equal(r.status,101);r.webSocket.accept();sockets.push(r.webSocket);const replay=await mf.dispatchFetch(url,{headers:{Upgrade:'websocket',Origin:origin}});assert.equal(replay.status,409);const next=await connect(id,0);assert.equal(next.frames[0].id,id);});
 test('terminal outcomes are sent through the durable settlement outbox',async()=>{const a=await connect('settle-test',0);a.send(JSON.stringify({type:'surrender',actionId:'realtime-surrender-001'}));await waitFor(()=>a.frames.some(f=>f.state?.status==='ended'));await waitFor(()=>settlements.some(x=>x.id==='settle-test'),6000);const final=settlements.find(x=>x.id==='settle-test');assert.equal(final.state.winner,1);});
 test('non-object WebSocket payloads are rejected without stopping the other player',async()=>{const a=await connect('malformed-test',0),b=await connect('malformed-test',1),initial=b.frames.length;a.send('null');await waitFor(()=>b.frames.length>initial);assert.ok(b.frames.at(-1).state.time>0);});
+test('classic rooms keep simulation close to wall-clock time',async()=>{
+ const a=await connect('pace-classic',0);
+ const first=a.frames[0].state.time,start=Date.now();
+ await sleep(700);
+ const latest=a.frames.filter(f=>f.state).at(-1).state.time,elapsed=(Date.now()-start)/1000;
+ assert.ok(latest-first>elapsed*.7,`sim advanced ${((latest-first)*1000)|0}ms in ${elapsed*1000|0}ms`);
+ assert.ok(latest-first<elapsed+.25);
+});
 test('skirmish rooms acknowledge move commands and hide the rival hand from side 1',async()=>{
  const a=await connect('skirmish-command',0),b=await connect('skirmish-command',1);
  assert.equal(a.frames[0].protocol,TACTICS_PROTOCOL);

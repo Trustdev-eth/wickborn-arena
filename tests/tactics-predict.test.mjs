@@ -45,6 +45,21 @@ test('rebasing an in-flight move does not snap the captain',()=>{
  assert.ok(Math.hypot(after.x-before.x,after.y-before.y)<20,`captain jumped ${Math.hypot(after.x-before.x,after.y-before.y).toFixed(1)}px`);
 });
 
+test('sparse snapshots still let the captain run at wall-clock speed',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const cmd={protocol:TACTICS_PROTOCOL,type:'move',x:200,y:500,actionId:'predict-pace-0001'};
+ assert.equal(p.predict(cmd).ok,true);
+ let wall=0,synced=0;
+ for(;wall<=1000;wall+=16){
+  while(synced+200<=wall){synced+=200;server.advance(.2);p.receive(server.snapshot('a'),synced);}
+  p.frame(wall);
+ }
+ assert.ok(p.state.time>0.85,`predicted time was ${p.state.time.toFixed(2)}s after 1s`);
+ assert.ok(p.state.time<=1+TACTICS_STEP*2);
+ const u=captain(p.state,0);
+ assert.ok(Math.hypot(u.x-200,u.y-500)<90,'captain keeps walking toward the order at full speed');
+});
 test('a rejected prediction is removed once its action id is acknowledged',()=>{
  const server=room(),p=new TacticsPredictor({side:0});
  p.receive(server.snapshot('a'),0);

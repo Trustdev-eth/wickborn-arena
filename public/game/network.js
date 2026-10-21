@@ -3,7 +3,7 @@ import {SnapshotBuffer} from './snapshots.js';
 export class ArenaConnection {
  constructor({call,id,onSnapshot=()=>{},onStatus=()=>{},onPending=()=>{},onRtt=()=>{},WebSocketImpl=globalThis.WebSocket}){this.call=call;this.id=id;this.onSnapshot=onSnapshot;this.onStatus=onStatus;this.onPending=onPending;this.onRtt=onRtt;this.WebSocketImpl=WebSocketImpl;this.buffer=new SnapshotBuffer();this.pending=[];this.closed=false;this.reading=false;this.sending=false;this.pollTimer=null;this.retryTimer=null;this.pingTimer=null;this.socket=null;this.ackWait=null;this.generation=0;this.rtt=null;}
  sampleRtt(ms){if(!Number.isFinite(ms)||ms<0||ms>5000)return;this.rtt=this.rtt===null?ms:this.rtt*.8+ms*.2;this.onRtt(this.rtt);}
- start(initial){this.realtime=initial.transport==='realtime';this.buffer.delay=this.realtime?100:120;this.buffer.maxExtrapolate=this.realtime?100:220;this.accept(initial);if(this.realtime)this.connect(initial.connection);else this.poll();}
+ start(initial){this.realtime=initial.transport==='realtime';this.buffer.delay=this.realtime?50:90;this.buffer.maxExtrapolate=this.realtime?180:220;this.accept(initial);if(this.realtime)this.connect(initial.connection);else this.poll();}
  accept(packet){if(this.closed||!packet?.state)return;if(this.buffer.push(packet)){this.onSnapshot(packet);this.onStatus(this.realtime?'Live connection':'HTTP connection');}}
  sample(now){return this.buffer.sample(now);}
  async poll(){if(this.closed||this.realtime||this.reading)return;this.reading=true;try{const sent=performance.now(),packet=await this.call('match/'+this.id);this.sampleRtt(performance.now()-sent);this.accept(packet);}catch{this.onStatus('Reconnecting…');}finally{this.reading=false;if(!this.closed)this.pollTimer=setTimeout(()=>this.poll(),80);}}
