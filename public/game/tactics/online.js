@@ -39,18 +39,18 @@ export class SkirmishConnection{
  accept(packet){if(this.closed||!isSkirmishSnapshot(packet)||this.side!==null&&packet.side!==this.side)return false;if(!this.buffer.push(packet))return false;this.side=packet.side;this.ready=true;this.onSnapshot(packet);return true;}
  start(initial){
   this.realtime=initial.transport==='realtime'||!!initial.connection?.url;
-  this.buffer.delay=this.realtime?40:90;this.buffer.maxExtrapolate=this.realtime?160:180;
+  this.buffer.delay=this.realtime?80:120;this.buffer.maxExtrapolate=this.realtime?160:180;
   if(!this.accept(initial))throw new Error('The server did not provide a Skirmish match.');
   this.onStatus(this.realtime?'Live connection':'HTTP connection');
   if(this.realtime)this.connect(initial.connection);else this.poll();
  }
  sample(now){return this.buffer.sample(now);}
- async poll(){if(this.closed)return;try{const start=performance.now(),packet=await this.call(`${this.path}/match/${this.id}`);if(!isSkirmishSnapshot(packet))throw Error();this.onRtt(performance.now()-start);this.accept(packet);this.onStatus('HTTP connection');}catch{this.ready=false;this.onStatus('Reconnecting…');}finally{if(!this.closed)this.pollTimer=setTimeout(()=>this.poll(),120);}}
+ async poll(){if(this.closed)return;try{const start=performance.now(),packet=await this.call(`${this.path}/match/${this.id}`);if(!isSkirmishSnapshot(packet))throw Error();this.onRtt(performance.now()-start);this.accept(packet);this.onStatus('HTTP connection');}catch{this.ready=false;this.onStatus('Reconnecting…');}finally{if(!this.closed)this.pollTimer=setTimeout(()=>this.poll(),220);}}
  async connect(connection){
   if(this.closed)return;const generation=++this.generation;this.ready=false;this.onStatus('Connecting…');
   try{connection??=await this.call(`${this.path}/match/${this.id}/ticket`,{protocol:TACTICS_PROTOCOL});if(this.closed||generation!==this.generation)return;const url=new URL(connection.url,globalThis.location?.href||'https://localhost');if(url.protocol!=='wss:'&&!(url.protocol==='ws:'&&['localhost','127.0.0.1'].includes(url.hostname)))throw Error();const ws=this.socket=new this.WebSocketImpl(url.href);
    const reconnect=()=>{if(this.closed||generation!==this.generation)return;this.generation++;this.ready=false;clearInterval(this.pingTimer);this.onStatus('Reconnecting…');this.retryTimer=setTimeout(()=>this.connect(),1000);};
-   ws.onopen=()=>{if(this.closed||generation!==this.generation){ws.close();return;}this.ready=true;this.onStatus('Live connection');this.pingTimer=setInterval(()=>{if(ws.readyState===1)ws.send(JSON.stringify({protocol:TACTICS_PROTOCOL,type:'ping',at:performance.now()}));},2000);};
+   ws.onopen=()=>{if(this.closed||generation!==this.generation){ws.close();return;}this.ready=true;this.onStatus('Live connection');this.pingTimer=setInterval(()=>{if(ws.readyState===1)ws.send(JSON.stringify({protocol:TACTICS_PROTOCOL,type:'ping',at:performance.now()}));},5000);};
    ws.onmessage=e=>{if(this.closed||generation!==this.generation)return;let p;try{p=JSON.parse(e.data);}catch{return;}if(p.type==='pong'&&Number.isFinite(p.at)){this.onRtt(Math.max(0,performance.now()-p.at));return;}if(p.protocol!==TACTICS_PROTOCOL)return;if(p.state)this.accept(p);if(p.actionId&&this.pending.has(p.actionId)){const pending=this.pending.get(p.actionId);clearTimeout(pending.timer);this.pending.delete(p.actionId);p.ok===false||p.error?pending.reject(new Error(p.error||'Command rejected.')):pending.resolve(p);}};
    ws.onclose=reconnect;ws.onerror=()=>{try{ws.close();}catch{}reconnect();};
   }catch{if(!this.closed){this.onStatus('Reconnecting…');this.retryTimer=setTimeout(()=>this.connect(),1500);}}

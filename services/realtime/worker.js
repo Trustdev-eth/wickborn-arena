@@ -82,7 +82,7 @@ export class MatchRoom {
  async save(candidate=this.room){const stored=this.serializable(candidate);await this.ctx.storage.put('room',stored);this.lastSaved=Date.now();this.dirty=false;const playing=stored?.kind==='skirmish'?stored.checkpoint?.game?.status==='playing':stored?.g?.status==='playing';await this.ctx.storage.setAlarm(Date.now()+(playing?5000:30000));}
  schedule(){
   if(this.timer||!this.playing())return;
-  const interval=this.room?.kind==='skirmish'?50:100,due=(this.room.lastTick||Date.now())+interval;
+  const interval=100,due=(this.room.lastTick||Date.now())+interval;
   this.timer=setTimeout(()=>{this.timer=null;this.queue(async()=>{await this.advance();this.broadcast();}).catch(()=>{console.warn('Room tick will recover');}).finally(()=>this.schedule());},Math.max(0,due-Date.now()));
  }
  async advance(){
