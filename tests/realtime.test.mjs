@@ -5,6 +5,7 @@ import {createRequire} from 'node:module';
 import {newGame} from '../public/game/engine.js';
 import {signToken,signedHeaders,verifyService} from '../lib/security.js';
 import {TacticsAuthority,TACTICS_PROTOCOL} from '../public/game/tactics/protocol.js';
+import {TacticsPredictor} from '../public/game/tactics/predict.js';
 const require=createRequire(import.meta.url),wr=createRequire(require.resolve('wrangler/package.json')),{Miniflare}=wr('miniflare'),{build}=wr('esbuild');
 const origin='https://arena.test',secret='local-test-only-secret-with-sufficient-entropy';let mf,script;const sockets=[],settlements=[];
 const sitesBinding=async request=>{const body=await request.text();assert.ok(await verifyService(request,body,secret));const data=JSON.parse(body),path=new URL(request.url).pathname.split('/').at(-1);if(path==='bootstrap'){if(String(data.id).startsWith('skirmish-')){const players=[data.id+':0',data.id+':1'],auth=new TacticsAuthority({players,initial:{seed:1,names:['Host','Joiner']}});return Response.json({row:{id:data.id,stake:0,asset:'skirmish',transport:'realtime',state:JSON.stringify({protocol:TACTICS_PROTOCOL,checkpoint:auth.checkpoint()}),last_tick:Date.now(),version:1},participants:players});}return Response.json({row:{id:data.id,stake:50,asset:'credits',transport:'realtime',state:JSON.stringify(newGame()),last_tick:Date.now(),version:1},participants:[data.id+':0',data.id+':1']});}if(path==='settle'){settlements.push(data);return Response.json({recorded:true,settled:true});}return Response.json({prices:[]});};
@@ -50,7 +51,25 @@ test('skirmish rooms acknowledge move commands and hide the rival hand from side
  await waitFor(()=>b.frames.length>before);
  const latest=b.frames.filter(f=>f.state).at(-1);
  assert.deepEqual(latest.state.hand[0],[]);
- assert.equal(latest.state.units.find(u=>u.captain&&u.p===0).order,null);
+ assert.deepEqual(latest.state.units.find(u=>u.captain&&u.p===0).order,{x:200,y:500});
+});
+test('the other player sees a walking captain instead of teleports',async()=>{
+ const a=await connect('skirmish-walk',0),b=await connect('skirmish-walk',1);
+ const p=new TacticsPredictor({side:1});
+ p.receive(b.frames.find(f=>f.state),0);
+ a.send(JSON.stringify({protocol:TACTICS_PROTOCOL,type:'move',x:200,y:500,actionId:'skirmish-walk-0001'}));
+ await waitFor(()=>a.frames.find(f=>f.type==='ack'&&f.actionId==='skirmish-walk-0001'));
+ let last=null,maxJump=0,moved=0;const start=Date.now();
+ while(Date.now()-start<800){
+  await sleep(16);
+  const wall=Date.now()-start,latest=b.frames.filter(f=>f.state).at(-1);
+  p.receive(latest,wall);p.frame(wall);
+  const u=p.state.units.find(u=>u.captain&&u.p===0);
+  if(u&&last){const jump=Math.hypot(u.x-last.x,u.y-last.y);maxJump=Math.max(maxJump,jump);moved+=jump;}
+  if(u)last={x:u.x,y:u.y};
+ }
+ assert.ok(moved>12,`rival captain only travelled ${moved.toFixed(1)}px`);
+ assert.ok(maxJump<16,`rival captain jumped ${maxJump.toFixed(1)}px between frames`);
 });
 test('skirmish rooms ack a burst of moves without waiting on storage',async()=>{
  const a=await connect('skirmish-burst',0);

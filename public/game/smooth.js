@@ -1,18 +1,22 @@
 import {STEP} from './engine.js';
 
-const MAX_SPEED=110,SETTLE=16,HISTORY=5;
+const MAX_SPEED=110,SETTLE=14,HISTORY=6;
 export const SNAP=140;
 export function followClock(samples,now,rtt,maxLead){
  const fresh=samples.filter(s=>now-s.at<=400),list=fresh.length?fresh:samples.slice(-1);
  return Math.max(...list.map(s=>s.offset))+Math.min(maxLead,rtt);
 }
 
-// Keep predicted x/y across a snapshot rebase when the jump is resim noise, not a teleport.
-export function adoptKinematics(prev,next){
+// Keep own-side x/y across a snapshot rebase when the jump is prediction lead or
+// resim noise, not a teleport. Rival units keep the rebuilt path so they can walk.
+export function adoptKinematics(prev,next,side,{onlyCaptains=false}={}){
  if(!prev?.units?.length||!next?.units?.length)return;
  const byId=new Map(prev.units.map(u=>[u.id,u]));
  for(const u of next.units){
+  if(side!==undefined&&u.p!==side)continue;
+  if(onlyCaptains&&!u.captain)continue;
   const old=byId.get(u.id);if(!old||old.card!==u.card||old.p!==u.p)continue;
+  if(u.dash||old.dash)continue;
   const jump=Math.hypot(u.x-old.x,u.y-old.y);if(jump<=0||jump>=SNAP)continue;
   u.x=old.x;u.y=old.y;if(Number.isFinite(old.facingX))u.facingX=old.facingX;if(Number.isFinite(old.facingY))u.facingY=old.facingY;
   if(Number.isFinite(old.vx))u.vx=old.vx;if(Number.isFinite(old.vy))u.vy=old.vy;
@@ -31,7 +35,8 @@ export class MotionTracker {
    live.add(u.id);let t=this.tracks.get(u.id);
    if(!t){t={samples:[],x:u.x,y:u.y,rawX:null,rawY:null,errX:0,errY:0,rt:renderTime};this.tracks.set(u.id,t);}
    const s=t.samples;while(s.length&&s[s.length-1].t>time+1e-6)s.pop();
-   const last=s[s.length-1],allowed=(u.action==='dash'?900:MAX_SPEED)*Math.max(dt,Math.abs(renderTime-t.rt))+2;
+   const speed=u.action==='dash'?900:Math.max(MAX_SPEED,Math.hypot(u.vx||0,u.vy||0),u.captain?130:0);
+   const last=s[s.length-1],allowed=speed*Math.max(dt,Math.abs(renderTime-t.rt),.05)+2;
    // Same-tick rebases are corrections, not a new sample. Keep the recorded path and ease toward the new point.
    if(last&&Math.abs(last.t-time)<1e-6){const jump=Math.hypot(u.x-last.x,u.y-last.y);if(jump>SNAP||jump<=allowed){last.x=u.x;last.y=u.y;}}
    else s.push({t:time,x:u.x,y:u.y});if(s.length>HISTORY)s.shift();

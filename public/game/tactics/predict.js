@@ -22,7 +22,7 @@ export class TacticsPredictor {
   if(!this.auth)return;const prev=this.state,sim=this.prepare(structuredClone(this.auth)),goal=Math.min(Math.max(prev?.time??sim.time,sim.time),sim.time+this.maxAhead),queue=[...this.pending].sort((a,b)=>a.at-b.at);
   const replay=()=>{while(queue.length&&queue[0].at<=sim.time+1e-6)this.apply(sim,queue.shift());};
   replay();for(let n=0;sim.status==='playing'&&sim.time+TACTICS_STEP<=goal+1e-6&&n<80;n++){stepTactics(sim);replay();}while(queue.length)this.apply(sim,queue.shift());
-  if(this.pending.length&&sim.status==='playing')adoptKinematics(prev,sim);
+  if(sim.status==='playing')adoptKinematics(prev,sim,this.side,{onlyCaptains:!this.pending.length});
   this.state=sim;
  }
  frame(now=performance.now()){

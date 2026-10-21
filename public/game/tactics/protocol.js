@@ -41,7 +41,9 @@ export class TacticsAuthority{
   const side=this.players.indexOf(authenticatedPlayer);if(side<0)throw new Error('Player is not a participant.');
   const {seed,commands,decks,hand,queue,market,recentEvents,...publicState}=this.game;
   const state={...structuredClone(publicState),decks:decks.map((d,p)=>p===side?[...d]:[]),hand:hand.map((d,p)=>p===side?[...d]:[]),queue:queue.map((d,p)=>p===side?[...d]:[]),market:structuredClone(market)};
-  for(const u of state.units)if(u.p!==side)u.order=null;
+  // Captain destinations stay public so the other client can keep walking and fighting
+  // them. Hands, decks and queues stay private.
+  for(const u of state.units)if(u.p!==side&&!u.captain)u.order=null;
   return {protocol:TACTICS_PROTOCOL,version:TACTICS_VERSION,side,sequence:this.sequence,state,acks:[...this.receipts[side].keys()].slice(-32)};
  }
 }

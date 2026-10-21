@@ -60,6 +60,38 @@ test('sparse snapshots still let the captain run at wall-clock speed',()=>{
  const u=captain(p.state,0);
  assert.ok(Math.hypot(u.x-200,u.y-500)<90,'captain keeps walking toward the order at full speed');
 });
+test('acknowledged moves do not snap the captain backwards',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const cmd={protocol:TACTICS_PROTOCOL,type:'move',x:200,y:500,actionId:'predict-ack-0001'};
+ assert.equal(p.predict(cmd).ok,true);
+ for(let wall=16;wall<=400;wall+=16)p.frame(wall);
+ const before=captain(p.state,0);
+ server.receive('a',cmd);
+ server.advance(.2);
+ p.receive(server.snapshot('a'),400);
+ const after=captain(p.state,0);
+ assert.ok(Math.hypot(after.x-before.x,after.y-before.y)<12,`captain jumped ${Math.hypot(after.x-before.x,after.y-before.y).toFixed(1)}px on ack`);
+});
+
+test('the rival captain keeps walking toward a live order between snapshots',()=>{
+ const server=room(),p=new TacticsPredictor({side:0});
+ p.receive(server.snapshot('a'),0);
+ const spawn=captain(p.state,1),dest={x:280,y:240};
+ server.receive('b',{protocol:TACTICS_PROTOCOL,type:'move',...dest,actionId:'rival-walk-0001'});
+ let wall=0,synced=0,last=spawn,maxJump=0,moved=0;
+ for(;wall<=1200;wall+=16){
+  while(synced+150<=wall){synced+=150;server.advance(.15);p.receive(server.snapshot('a'),synced);}
+  p.frame(wall);
+  const u=captain(p.state,1);
+  if(u&&last){const jump=Math.hypot(u.x-last.x,u.y-last.y);maxJump=Math.max(maxJump,jump);moved+=jump;last={x:u.x,y:u.y};}
+ }
+ const u=captain(p.state,1),before=Math.hypot(spawn.x-dest.x,spawn.y-dest.y),after=Math.hypot(u.x-dest.x,u.y-dest.y);
+ assert.ok(moved>20,`rival captain only travelled ${moved.toFixed(1)}px`);
+ assert.ok(maxJump<18,`rival captain jumped ${maxJump.toFixed(1)}px between frames`);
+ assert.ok(after<before-15,`rival captain did not close on the order (${after.toFixed(1)}px left from ${before.toFixed(1)}px)`);
+});
+
 test('a rejected prediction is removed once its action id is acknowledged',()=>{
  const server=room(),p=new TacticsPredictor({side:0});
  p.receive(server.snapshot('a'),0);

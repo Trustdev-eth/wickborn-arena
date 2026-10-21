@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {STEP} from '../public/game/engine.js';
-import {MotionTracker} from '../public/game/smooth.js';
+import {MotionTracker,adoptKinematics} from '../public/game/smooth.js';
 
 // Drives a 10 Hz simulation from irregular 60 Hz-ish frames the way client.js does.
 function run(frames,{speed=60,onStep}={}){
@@ -31,6 +31,16 @@ test('a real teleport snaps, and renamed predictions keep their motion history',
  tracker.update([u],0,0,.016);u.x=400;tracker.update([u],.1,.1,.016);assert.equal(tracker.get('p1').x,400);
  u.x=410;tracker.update([u],.2,.15,.016);tracker.rename('p1',9);const moved={...u,id:9,x:420};tracker.update([moved],.3,.2,.016);
  assert.ok(Math.abs(tracker.get(9).x-410)<1e-6,'Interpolation continues across the new id.');assert.equal(tracker.get('p1'),undefined);
+});
+
+test('prediction rebases keep own captains and leave rivals on the rebuilt path',()=>{
+ const prev={units:[{id:1,p:0,card:1,captain:true,x:100,y:400,vx:10,vy:0},{id:3,p:0,card:2,x:120,y:500},{id:2,p:1,card:1,captain:true,x:200,y:200,vx:0,vy:10}]};
+ const next={units:[{id:1,p:0,card:1,captain:true,x:118,y:400,vx:0,vy:0},{id:3,p:0,card:2,x:140,y:500},{id:2,p:1,card:1,captain:true,x:200,y:230,vx:0,vy:10}]};
+ adoptKinematics(prev,next,0,{onlyCaptains:true});
+ assert.equal(next.units[0].x,100);
+ assert.equal(next.units[0].vx,10);
+ assert.equal(next.units[1].x,140);
+ assert.equal(next.units[2].y,230);
 });
 
 test('repeated rebases at the same sim time do not grow per-frame travel',()=>{
