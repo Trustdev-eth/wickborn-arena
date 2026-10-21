@@ -1477,6 +1477,7 @@ var MatchRoom = class {
   }
   schedule() {
     if (this.timer || !this.playing()) return;
+    const interval = this.room?.kind === "skirmish" ? 50 : 100, due = (this.room.lastTick || Date.now()) + interval;
     this.timer = setTimeout(() => {
       this.timer = null;
       this.queue(async () => {
@@ -1485,7 +1486,7 @@ var MatchRoom = class {
       }).catch(() => {
         console.warn("Room tick will recover");
       }).finally(() => this.schedule());
-    }, this.room?.kind === "skirmish" ? 50 : 100);
+    }, Math.max(0, due - Date.now()));
   }
   async advance() {
     if (!this.playing()) return;

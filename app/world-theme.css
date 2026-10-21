@@ -27,15 +27,16 @@ body::before {
 .brand-mark { background:transparent; border:0; border-radius:0; box-shadow:none; }
 .brand-mark img { width:46px; height:46px; filter:drop-shadow(0 2px 1px color-mix(in srgb,var(--ink) 35%,transparent)); }
 .desktop-nav { background:color-mix(in srgb,var(--surface) 82%,transparent); padding:4px; border:1px solid var(--world-line); border-radius:11px; }
-.desktop-nav button { color:var(--world-muted); }
-.desktop-nav button.active { background:var(--sun); color:var(--badge-ink); box-shadow:inset 0 -3px 0 var(--coral); }
-.desktop-nav button:hover:not(.active) { background:var(--raised); color:var(--ink); }
+.desktop-nav :is(button,a) { color:var(--world-muted); }
+.desktop-nav :is(button,a).active { background:var(--sun); color:var(--badge-ink); box-shadow:inset 0 -3px 0 var(--coral); }
+.desktop-nav :is(button,a):hover:not(.active) { background:var(--raised); color:var(--ink); }
 .help-link,.top-actions .icon-button { color:var(--world-muted); }
 .help-link:hover { color:var(--sun); }
 .topbar :focus-visible,.play-guide-link:focus-visible,.mobile-nav :focus-visible,.setup-heading>.text-button:focus-visible { outline-color:var(--sun); }
 .wallet-connect { background:var(--content-raised); color:var(--world-ink); border-color:var(--world-line); box-shadow:0 3px 0 var(--coral); }
 .wallet-connect:hover { background:color-mix(in srgb,var(--world-sky) 28%,var(--world-panel)); border-color:var(--world-sky); }
-.balance-chip b { color:var(--sun); }.balance-chip small { color:var(--world-muted); }
+.balance-chip { background:var(--sun); border:2px solid var(--ink); box-shadow:0 3px 0 var(--coral); }
+.balance-chip>.icon,.balance-chip b,.balance-chip small { color:var(--ink); }
 .trainer-chip .sprite { border-color:var(--world-sky); }
 .page-heading h1,.play-intro h1 { color:var(--world-ink); }
 .page-context,.page-meta,.page-meta .arena-status { color:var(--world-muted); }
@@ -231,13 +232,13 @@ body::before {
 .health-label { --hp:var(--world-sky); --edge:var(--accent-soft); }.health-label.is-rival { --hp:var(--danger); --edge:var(--raised); }
 .health-name { background:color-mix(in srgb,var(--surface) 92%,transparent); color:var(--ink); }.health-track { background:var(--recess); }
 .t-match-head { background:var(--world-panel); color:var(--world-ink); border:1px solid var(--world-line); border-radius:11px; padding:8px 13px; }
-.t-match-head .text-button,.t-match-head small,.t-match-head .t-quiet,.t-clock>span,.t-match-head .match-connection { color:var(--world-muted); }
+.t-match-head small,.t-clock>span,.t-match-head .match-connection { color:var(--ink); }
 .t-match-head .t-icon { background:var(--content-raised); color:var(--world-ink); }.t-clock strong { color:var(--world-ink); }
 .t-viewport { border:2px solid var(--world-line); box-shadow:0 4px 0 var(--coral); }
 .t-combat-dock { background:var(--world-panel); border-color:var(--world-line); box-shadow:0 4px 0 var(--coral); }
 .t-resource-row,.t-resource-row b,.t-resource-row>span,.t-resource-row small { color:var(--world-muted); }.t-resource-row i { background:var(--world-sky); }
-.mobile-nav { background:color-mix(in srgb,var(--world-panel) 96%,transparent); border-top-color:var(--world-line); }.mobile-nav button { color:var(--world-muted); }
-.mobile-nav button.active { color:var(--sun); }.mobile-nav button.active .icon { background:var(--sun); color:var(--badge-ink); box-shadow:0 0 0 5px var(--sun); }
+.mobile-nav { background:color-mix(in srgb,var(--world-panel) 96%,transparent); border-top-color:var(--world-line); }.mobile-nav :is(button,a) { color:var(--world-muted); }
+.mobile-nav :is(button,a).active { color:var(--sun); }.mobile-nav :is(button,a).active .icon { background:var(--sun); color:var(--badge-ink); box-shadow:0 0 0 5px var(--sun); }
 @media(max-width:759px) {
  .play-quickstart { gap:8px; }.play-quickstart>div { padding:10px; }
  .topbar { box-shadow:none; }.wallet-connect { box-shadow:0 2px 0 var(--coral); }
@@ -305,8 +306,8 @@ body::before {
 .result-modal.is-defeat .result-overline { background:var(--danger); color:var(--white); }
 .result-modal.is-draw .result-overline { background:var(--world-sky); color:var(--white); }
 .button,
-.desktop-nav button,
-.mobile-nav button,
+.desktop-nav :is(button,a),
+.mobile-nav :is(button,a),
 .filter-tabs button,
 .stock-sector-tabs button,
 .play-type-picker,
@@ -389,7 +390,7 @@ body::before {
 
 /* HUD copy: +2px and ink-weight contrast on cream. Accent fills stay Game Level. */
 .brand { align-items:center; }
-.desktop-nav button { font-size:15px; color:var(--ink); }
+.desktop-nav :is(button,a) { font-size:15px; color:var(--ink); }
 .help-link { font-size:14px; color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
 .wallet-connect { font-size:14px; }
 .page-context,.page-meta { font-size:14px; color:var(--ink); }
@@ -439,3 +440,242 @@ body::before {
 .staking-ladder b,.pot-summary b,.online-entry b { color:color-mix(in srgb,var(--ink) 38%,var(--world-sky)); }
 .filter-tabs button,.stock-sector-tabs button { font-size:13px; }
 .large .card-bottom { font-size:11px; color:var(--ink); }
+
+/* High-contrast HUD: cream-on-cream gold is unreadable. */
+.ranks-hero .eyebrow,.ranks-you .eyebrow,.ranks-hero h2,.ranks-intro h2,.ranks-hero p,.ranks-you>b,.ranks-you>p,.ranks-you-stats,.trainer-name,.rank-record,.rank-trophies,.rank-trophies b,.rank-trophies .icon,.podium-card b,.podium-trophies,.podium-trophies .icon,.podium-card small,.ranks-board .table-heading,.ranks-empty h3,.ranks-empty p {
+ color:var(--ink);
+}
+.ranks-hero h2 { -webkit-text-fill-color:var(--ink); }
+.rank-rules>span { background:var(--sun); border:2px solid var(--ink); color:var(--ink); }
+.ranks-you { background:var(--raised); border:2px solid var(--ink); }
+.you-badge { background:var(--sun); color:var(--ink); border:1px solid var(--ink); }
+.rank-number { background:var(--raised); color:var(--ink); border-color:var(--ink); }
+.rank-row { color:var(--ink); }
+.rank-row>span:last-child { color:var(--ink); }
+
+.balance-chip { display:flex; background:var(--sun); border:2px solid var(--ink); box-shadow:0 3px 0 var(--coral); }
+.balance-chip>.icon,.balance-chip b,.balance-chip small { color:var(--ink); }
+.balance-chip b { font-size:16px; font-weight:850; }
+.balance-chip small { font-size:9px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+.balance-earn { padding-left:10px; border-left:2px solid var(--ink); }
+
+.match-controls,.t-match-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.match-btn {
+ display:inline-flex; align-items:center; justify-content:center; gap:6px;
+ min-height:34px; padding:6px 12px; border:2px solid var(--ink); border-radius:8px;
+ background:var(--sun); color:var(--ink); font:800 13px/1 var(--font-ui);
+ box-shadow:0 3px 0 var(--coral); white-space:nowrap;
+}
+.match-btn:hover { background:var(--leaf); transform:translateY(-1px); }
+.match-btn.is-leave { background:var(--coral); color:var(--white); border-color:var(--ink); }
+.match-btn.is-leave:hover { background:color-mix(in srgb,var(--coral) 80%,var(--ink)); }
+.match-btn .icon { width:14px; height:14px; }
+.app-shell.battle-screen .match-btn,.t-match-head .match-btn { color:var(--ink); font-weight:800; }
+.app-shell.battle-screen .match-btn.is-leave,.t-match-head .match-btn.is-leave { color:var(--white); }
+
+.t-hand-card { background:color-mix(in srgb,var(--fighter,var(--accent)) 18%,var(--raised)); border:2px solid var(--ink); color:var(--ink); }
+.t-hand-card b { font-size:13px; font-weight:850; color:var(--ink); }
+.t-hand-card small { font-size:10px; font-weight:800; color:var(--ink); }
+.t-hand-card.is-ready { background:color-mix(in srgb,var(--sun) 58%,var(--raised)); box-shadow:0 3px 0 var(--ink); }
+.t-hand-card.not-ready { filter:grayscale(.4); opacity:1; background:var(--recess); border-color:var(--muted); box-shadow:none; }
+.t-hand-card.not-ready b,.t-hand-card.not-ready small { color:var(--muted); }
+.t-hand-card.not-ready .t-card-cost { background:var(--recess); color:var(--muted); border-color:var(--muted); }
+.t-card-cost { background:var(--sun); border:2px solid var(--ink); color:var(--ink); }
+
+.app-shell.battle-screen .hand-card { background:color-mix(in srgb,var(--card-color,var(--accent)) 18%,var(--raised)); border:2px solid var(--ink); border-top-width:4px; border-top-color:var(--card-color,var(--ink)); }
+.app-shell.battle-screen .hand-card .card-title { color:var(--ink); font-weight:850; font-size:12px; }
+.app-shell.battle-screen[data-dock="side"] .hand-card .type { display:block; color:var(--ink); font-size:10px; font-weight:800; }
+.app-shell.battle-screen[data-dock="side"] .hand-card .card-title { font-size:13px; }
+.app-shell.battle-screen .hand-card .card-bottom { color:var(--ink); font-weight:800; }
+.app-shell.battle-screen .hand-card .cost { background:var(--sun); border:2px solid var(--ink); color:var(--ink); }
+.app-shell.battle-screen .hand-card.is-ready { background:color-mix(in srgb,var(--sun) 50%,var(--raised)); box-shadow:0 3px 0 var(--ink); }
+.app-shell.battle-screen .hand-card.is-ready::after {
+ content:"PLAY"; position:absolute; top:5px; right:5px; z-index:2;
+ background:var(--ink); color:var(--sun); font:800 8px/1 var(--font-ui);
+ letter-spacing:.06em; padding:3px 5px; border-radius:4px;
+}
+.app-shell.battle-screen .hand-card.not-ready { filter:grayscale(.4); opacity:1; background:var(--recess); border-color:var(--muted); box-shadow:none; }
+.app-shell.battle-screen .hand-card.not-ready .card-title,.app-shell.battle-screen .hand-card.not-ready .card-bottom { color:var(--muted); }
+.app-shell.battle-screen .hand-card.not-ready .cost { background:var(--recess); color:var(--muted); border-color:var(--muted); }
+.app-shell.battle-screen .hand-card.not-ready::after {
+ content:"WAIT"; position:absolute; top:5px; right:5px; z-index:2;
+ background:var(--muted); color:var(--raised); font:800 8px/1 var(--font-ui);
+ letter-spacing:.06em; padding:3px 5px; border-radius:4px;
+}
+.app-shell.battle-screen .hand-card.selected { box-shadow:0 0 0 2px var(--sun),0 3px 0 var(--ink); }
+
+@media(max-width:1200px) {
+ .balance-chip { display:flex; }
+}
+@media(max-width:950px) {
+ .balance-chip b { font-size:14px; }
+ .balance-chip small { font-size:8px; }
+ .match-btn { min-height:30px; padding:5px 9px; font-size:12px; }
+}
+@media(max-width:759px) {
+ .top-actions .balance-chip { display:flex; }
+ .balance-chip>.icon { display:none; }
+ .balance-chip { gap:6px; padding:3px 7px; min-height:36px; }
+ .balance-chip b { font-size:13px; }
+ .match-btn { min-height:28px; padding:4px 8px; font-size:11px; }
+ .t-hand-card b { font-size:11px; }
+ .app-shell.battle-screen .hand-card .card-title { font-size:11px; }
+}
+
+.t-intel-card { background:var(--raised); border:2px solid var(--ink); color:var(--ink); }
+.t-intel-card .eyebrow,.t-captain-mini b,.t-captain-mini small,.t-muted,.t-status-text,.t-objective strong,.t-objective>p,.t-controls-help p,.t-shortcuts>span {
+ color:var(--ink);
+}
+.t-intel-card .eyebrow { font-size:10px; font-weight:800; }
+.t-captain-mini b { font-size:14px; }
+.t-captain-mini small { font-size:11px; font-weight:700; }
+.t-muted,.t-status-text { font-size:12px; }
+.t-objective strong { font-size:13px; }
+.t-objective>p,.t-shortcuts>span { font-size:12px; }
+.t-controls-help p { font-size:13px; }
+.t-shortcuts kbd,.t-captain-actions kbd {
+ background:var(--sun); color:var(--ink); border:2px solid var(--ink); font-weight:800;
+}
+.t-captain-actions>button {
+ background:var(--raised); border:2px solid var(--ink); color:var(--ink); box-shadow:0 3px 0 var(--coral);
+}
+.t-captain-actions>button>span { font-size:13px; font-weight:800; color:var(--ink); }
+.t-captain-actions small { font-size:10px; font-weight:750; color:var(--ink); }
+.t-captain-actions .is-active { background:var(--sun); border-color:var(--ink); }
+.t-aim-hint { background:var(--sun); color:var(--ink); border:2px solid var(--ink); font-weight:800; }
+.t-resource-row,.t-resource-row b,.t-resource-row>span,.t-resource-row small { color:var(--ink); }
+
+.brand,.trainer-chip,.balance-chip,.desktop-nav a,.mobile-nav a { text-decoration:none; color:inherit; }
+.desktop-nav :is(button,a) { display:flex; align-items:center; padding:9px 12px; font-weight:800; }
+.desktop-nav :is(button,a).active { background:var(--sun); color:var(--ink); box-shadow:inset 0 -3px 0 var(--coral); }
+.mobile-nav :is(button,a) { display:flex; color:var(--ink); }
+.mobile-nav :is(button,a).active { color:var(--ink); }
+.mobile-nav :is(button,a).active .icon { background:var(--sun); color:var(--ink); box-shadow:0 0 0 5px var(--sun); }
+
+.profile-hub .eyebrow,.profile-hub h2,.profile-hub h3,.profile-hub p,.profile-hub .fineprint,.profile-hub .empty-state,
+.profile-hero-copy h2,.profile-stat-grid>span,.profile-stat-grid b,.status-chip,.alert-row,.alert-row>span,.alert-row small,
+.balance-card .wallet-amount h2,.balance-card .wallet-amount small,.balance-card .wallet-amount>.icon,.balance-meta,.balance-meta b,
+.token-position b,.token-position small,.history-copy,.history-copy b,.history-copy small,.hub-page .history-row>b {
+ color:var(--ink);
+}
+.profile-hero-copy h2 { -webkit-text-fill-color:var(--ink); }
+.profile-hero-art { background:var(--raised); border:2px solid var(--ink); box-shadow:0 6px 0 var(--coral); }
+.status-chip {
+ background:var(--sun); border:2px solid var(--ink); color:var(--ink);
+ font-size:12px; font-weight:800;
+}
+.status-chip .icon { color:var(--ink); }
+.status-chip.is-wallet { background:var(--raised); }
+.profile-hero-actions .button.secondary {
+ background:var(--raised); border:2px solid var(--ink); color:var(--ink);
+}
+.profile-hero-actions .button.primary {
+ background:var(--sun); border:2px solid var(--ink); color:var(--ink);
+}
+.profile-hub .wallet-amount { background:var(--sun); border:2px solid var(--ink); }
+.profile-hub .wallet-amount h2 { color:var(--ink); }
+.profile-stat-grid>span,.profile-shortcuts>:is(a,button) { background:var(--sun); border:2px solid var(--ink); color:var(--ink); }
+.profile-shortcuts>:is(a,button) { background:var(--sun); }
+.profile-shortcuts>:is(a,button):hover { background:var(--leaf); }
+.alert-row { background:var(--sun); border:2px solid var(--ink); }
+.lock-badge { background:var(--sun); color:var(--ink); border:2px solid var(--ink); }
+.profile-hub .empty-state { color:var(--ink); }
+.profile-hub .text-button { color:var(--ink); font-weight:800; }
+.profile-hub a.button.secondary,.profile-hub .button.secondary {
+ background:var(--raised); border:2px solid var(--ink); color:var(--ink);
+}
+
+.ranks-you,.ranks-you p,.ranks-you h3,.ranks-you .eyebrow,.ranks-you-stats,.ranks-you-place>b {
+ color:var(--ink);
+}
+.ranks-you { background:var(--sun); border:2px solid var(--ink); box-shadow:0 4px 0 var(--coral); }
+.ranks-you.is-guest { background:var(--raised); }
+.podium-card { background:var(--raised); border:2px solid var(--ink); box-shadow:0 5px 0 var(--coral); color:var(--ink); }
+.podium-card b,.podium-card small,.podium-trophies,.podium-trophies .icon { color:var(--ink); }
+.podium-card.is-gold { background:var(--sun); }
+.podium-card.is-bronze { background:color-mix(in srgb,var(--coral) 26%,var(--raised)); }
+.ranks-board { background:var(--surface); border:2px solid var(--ink); }
+.ranks-board-head h3,.ranks-board-head>span,.ranks-board .table-heading,.trainer-name,.rank-record,.rank-trophies,.rank-trophies b {
+ color:var(--ink);
+}
+.ranks-board .table-heading,.ranks-board .rank-row {
+ grid-template-columns:48px minmax(0,1.4fr) 88px 108px;
+}
+.rank-row { color:var(--ink); }
+.ranks-board .rank-row.is-you { background:var(--sun); border:2px solid var(--ink); box-shadow:0 3px 0 var(--coral); }
+.ranks-board .rank-row.is-1 { background:color-mix(in srgb,var(--sun) 42%,var(--surface)); }
+.rank-number { background:var(--raised); color:var(--ink); border:2px solid var(--ink); }
+.rank-row.is-1 .rank-number { background:var(--sun); }
+.rank-row.is-3 .rank-number { background:var(--coral); color:var(--white); }
+.podium-card .you-badge { position:absolute; top:10px; right:8px; margin:0; }
+.podium-card { overflow:visible; }
+.ranks-you,.ranks-you.is-guest { background:var(--sun); }
+.ranks-you.is-guest { background:var(--raised); }
+.podium-card.is-gold { background:var(--sun); }
+
+@media(max-width:759px) {
+ .topbar { height:56px; min-height:56px; gap:8px; }
+ .brand b { font-size:18px; }
+ .brand-mark,.brand-mark img { width:34px; height:34px; }
+ .help-link { width:32px; }
+ .wallet-connect.connected { width:36px; min-width:36px; min-height:36px; padding:0; max-width:36px; }
+ .wallet-connect.connected #wallet-label { display:none; }
+ .wallet-connect:not(.connected) { width:auto; max-width:none; padding:6px 10px; }
+ .balance-chip { min-height:36px; padding:3px 7px; gap:6px; }
+ .balance-chip b { font-size:13px; }
+ .balance-chip small { font-size:7px; }
+ .page-heading { height:42px; min-height:42px; }
+ .page-heading h1 { font-size:22px; }
+ .page-meta { font-size:10px; color:var(--ink); }
+ .app-shell[data-page="battle"][data-playing="false"]>.page-heading { display:none; }
+
+ .play-world,.play-quickstart,.play-intro,.play-guide-link { display:none; }
+ .play-hub { padding:8px 0 12px; }
+ .play-launch.panel { padding:16px; }
+ .launch-heading h2 { font-size:22px; margin-bottom:10px; }
+ .game-picker>button { min-height:84px; background:var(--raised); border:2px solid var(--ink); }
+ .game-picker>button.active { background:var(--sun); }
+ .play-type-picker { border:2px solid var(--ink); }
+ .play-type-picker>.active { background:var(--sun); color:var(--ink); }
+ .play-start { min-height:48px; background:var(--sun); color:var(--ink); border:2px solid var(--ink); }
+
+ .collection-intro,.progression-tabs { display:none; }
+ .profile-hero { grid-template-columns:1fr; text-align:center; }
+ .profile-hero-art { margin:0 auto; }
+ .deck-builder { padding:12px; }
+ .builder-deck { grid-template-columns:repeat(4,minmax(0,1fr)); }
+ .collection-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+ .large { height:168px; }
+ .large .sprite { width:118px; height:118px; }
+ .collection-info { padding:10px; }
+ .collection-info>.button { min-height:40px; background:var(--sun); color:var(--ink); border:2px solid var(--ink); }
+
+ .mobile-nav { background:var(--surface); border-top:2px solid var(--ink); }
+ .mobile-nav :is(button,a) { color:var(--ink); font-weight:800; font-size:9px; }
+ .mobile-nav :is(button,a).active { color:var(--ink); }
+ .mobile-nav :is(button,a).active .icon { background:var(--sun); color:var(--ink); border-radius:8px; box-shadow:0 0 0 4px var(--sun); }
+
+ .ranks-podium { grid-template-columns:1fr 1.18fr 1fr; }
+ .podium-card { min-height:136px; padding:12px 6px 24px; }
+ .podium-card.is-gold { order:2; min-height:176px; }
+ .podium-card.is-silver { order:1; min-height:148px; }
+ .podium-card.is-bronze { order:3; min-height:136px; }
+ .ranks-board .table-heading,.ranks-board .rank-row { grid-template-columns:36px minmax(0,1fr) 72px; }
+ .ranks-board .table-heading>span:nth-child(3),.ranks-board .rank-row .rank-record { display:none; }
+
+ .app-shell.battle-screen .battle-score {
+  gap:6px; padding:6px 8px;
+  grid-template-columns:minmax(0,1fr) auto auto auto;
+ }
+ .app-shell.battle-screen .opponent-name { display:none; }
+ .app-shell.battle-screen .match-version small { display:none; }
+ .app-shell.battle-screen .timer { font-size:22px; padding:4px 8px; min-width:0; }
+ .app-shell.battle-screen .match-controls { display:flex; gap:4px; width:auto; min-width:0; }
+ .app-shell.battle-screen .match-btn { min-height:30px; min-width:52px; padding:4px 8px; font-size:12px; }
+ .app-shell.battle-screen .scene-toolbar .market-info { display:none; }
+ .t-match-head { gap:6px; }
+ .t-clock strong { font-size:24px; }
+ .t-captain-mini { display:flex !important; align-items:center; gap:6px; float:none !important; margin:0 0 6px; }
+ .t-captain-mini>.sprite { display:block !important; width:34px; height:34px; }
+ .t-captain-mini b { font-size:13px; }
+}

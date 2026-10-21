@@ -1,4 +1,4 @@
-/* Trainer and Leaderboard hub layouts. */
+/* Portfolio and Leaderboard hub layouts. */
 .rewards-earn .wallet-amount{margin:18px 0 8px}
 .rewards-earn .milestone-list.feed-list{display:grid;gap:0}
 
@@ -7,111 +7,131 @@
 
 .profile-hero{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px 24px;align-items:center;overflow:hidden;position:relative}
 .profile-hero::before{content:"";position:absolute;inset:auto -40px -80px auto;width:280px;height:220px;background:var(--surface);pointer-events:none}
-.profile-hero-art{display:grid;place-items:center;width:132px;height:132px;border-radius:28px;background:var(--surface);border:1px solid color-mix(in srgb, var(--line) 12%, transparent);box-shadow:inset 0 1px 0 color-mix(in srgb, var(--shadow) 13%, transparent),0 10px 24px color-mix(in srgb, var(--shadow) 40%, transparent)}
+.profile-hero-art{display:grid;place-items:center;width:132px;height:132px;border-radius:28px;background:var(--raised);border:2px solid var(--ink);box-shadow:0 6px 0 var(--coral)}
 .profile-hero-art .profile-sprite{width:118px}
 .profile-hero-copy{min-width:0;position:relative}
-.profile-hero-copy h2{font-size:clamp(26px,3vw,34px);margin:2px 0 10px;overflow-wrap:anywhere}
+.profile-hero-copy .eyebrow{color:var(--ink);font-weight:800}
+.profile-hero-copy h2{font-size:clamp(26px,3vw,34px);margin:2px 0 10px;overflow-wrap:anywhere;color:var(--ink)}
 .profile-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.status-chip{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:4px 10px;border:1px solid color-mix(in srgb, var(--line) 13%, transparent);border-radius:999px;background:color-mix(in srgb, var(--raised) 5%, transparent);font-size:11px;font-weight:700;color:var(--ink)}
-.status-chip .icon{width:13px;height:13px;color:var(--gold)}
-.status-chip.is-wallet{font-family:ui-monospace,monospace;letter-spacing:.02em}
+.status-chip{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:4px 10px;border:2px solid var(--ink);border-radius:999px;background:var(--sun);font-size:12px;font-weight:800;color:var(--ink)}
+.status-chip .icon{width:13px;height:13px;color:var(--ink)}
+.status-chip.is-wallet{font-family:ui-monospace,monospace;letter-spacing:.02em;background:var(--raised)}
 .profile-hero-actions{display:flex;flex-wrap:wrap;gap:8px}
 .profile-hero-actions .button{min-height:40px;padding:8px 14px;width:auto}
 .profile-stat-grid{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.profile-stat-grid>span{display:flex;flex-direction:column;gap:4px;padding:14px 12px;border:1px solid color-mix(in srgb, var(--line) 8%, transparent);border-radius:12px;background:color-mix(in srgb, var(--recess) 50%, transparent);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.profile-stat-grid b{font-size:22px;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;text-transform:none}
+.profile-stat-grid>span{display:flex;flex-direction:column;gap:4px;padding:14px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--raised);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;color:var(--ink)}
+.profile-stat-grid b{font-size:24px;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;text-transform:none}
 .profile-shortcuts{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.profile-shortcuts button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:8px 10px;border:1px solid color-mix(in srgb, var(--line) 9%, transparent);border-radius:11px;background:color-mix(in srgb, var(--raised) 5%, transparent);font-size:12px;font-weight:750;color:var(--ink)}
-.profile-shortcuts button:hover{background:color-mix(in srgb, var(--raised) 9%, transparent);border-color:color-mix(in srgb, var(--gold) 40%, transparent);color:var(--ink)}
-.profile-shortcuts .icon{width:15px;height:15px;color:var(--gold)}
+.profile-shortcuts a,.profile-shortcuts button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:8px 10px;border:2px solid var(--ink);border-radius:11px;background:var(--sun);font-size:13px;font-weight:800;color:var(--ink);box-shadow:0 3px 0 var(--coral)}
+.profile-shortcuts a:hover,.profile-shortcuts button:hover{background:var(--leaf);color:var(--ink)}
+.profile-shortcuts .icon{width:15px;height:15px;color:var(--ink)}
 
 .profile-alerts:empty{display:none}
-.alert-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border:1px solid color-mix(in srgb, var(--gold) 33%, transparent);border-radius:12px;background:var(--surface);margin:0}
+.alert-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border:2px solid var(--ink);border-radius:12px;background:var(--sun);margin:0;color:var(--ink)}
 .alert-row+.alert-row{margin-top:8px}
-.alert-row>span{flex:1;min-width:160px;font-size:12px;line-height:1.45}
-.alert-row small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.alert-row>span{flex:1;min-width:160px;font-size:13px;line-height:1.45;font-weight:750;color:var(--ink)}
+.alert-row small{display:block;color:var(--ink);font-size:11px;margin-top:3px}
 .alert-row .button,.alert-row .text-button{width:auto;min-height:36px;margin:0}
 
 .profile-balances,.profile-feeds{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .balance-card{display:flex;flex-direction:column;min-height:100%}
-.balance-card .wallet-amount{margin:6px 0 16px}
-.balance-card .wallet-amount h2{font-size:clamp(28px,3.2vw,40px)}
-.balance-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 0;border-top:1px solid color-mix(in srgb, var(--line) 8%, transparent);border-bottom:1px solid color-mix(in srgb, var(--line) 8%, transparent);font-size:10px;color:var(--muted);line-height:1.4}
-.balance-meta b{display:block;margin-top:6px;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+.balance-card .eyebrow,.profile-feeds h3,.profile-hub .fineprint,.profile-hub .empty-state,.profile-hub p{color:var(--ink)}
+.balance-card .wallet-amount{margin:6px 0 16px;padding:12px 16px;border:2px solid var(--ink);border-radius:14px;background:var(--sun);box-shadow:0 3px 0 var(--coral)}
+.balance-card .wallet-amount>.icon{color:var(--ink)}
+.balance-card .wallet-amount h2{font-size:clamp(28px,3.2vw,40px);color:var(--ink)}
+.balance-card .wallet-amount small{color:var(--ink);font-weight:800}
+.balance-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);font-size:11px;font-weight:800;color:var(--ink);line-height:1.4}
+.balance-meta b{display:block;margin-top:6px;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
 .balance-card>.fineprint{margin-top:12px}
 .balance-card>.button{margin-top:auto;padding-top:4px}
-.balance-card .empty-state{padding:16px 8px;margin:0}
+.balance-card .empty-state{padding:16px 8px;margin:0;color:var(--ink)}
 .profile-hub .token-stakes-panel{margin-top:0}
 .token-position-list{display:grid;gap:8px;margin:4px 0 8px}
-.token-position{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;padding:12px 12px;border:1px solid color-mix(in srgb, var(--line) 8%, transparent);border-radius:11px;background:color-mix(in srgb, var(--recess) 53%, transparent);font-size:12px}
+.token-position{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;padding:12px 12px;border:2px solid var(--ink);border-radius:11px;background:var(--raised);font-size:13px;color:var(--ink)}
 .token-position>span{min-width:0}
 .token-position b{display:block;margin:0 0 3px;color:var(--ink)}
-.token-position small{color:var(--muted);font-size:10px}
+.token-position small{color:var(--ink);font-size:11px}
 .token-position .button{width:auto;min-height:36px;padding:8px 12px;margin:0}
-.lock-badge{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb, var(--blue) 33%, transparent);background:color-mix(in srgb, var(--raised) 33%, transparent);font-size:10px;font-weight:700;color:var(--ink);white-space:nowrap}
-.token-position.is-ready{border-color:color-mix(in srgb, var(--mint) 40%, transparent);background:color-mix(in srgb, var(--surface) 27%, transparent)}
-.token-position.is-ready .lock-badge{border-color:var(--mint);background:var(--surface);color:var(--mint)}
+.lock-badge{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;border:2px solid var(--ink);background:var(--sun);font-size:11px;font-weight:800;color:var(--ink);white-space:nowrap}
+.token-position.is-ready{border-color:var(--ink);background:var(--sun)}
+.token-position.is-ready .lock-badge{border-color:var(--ink);background:var(--raised);color:var(--ink)}
 
 .feed-list{display:grid}
-.hub-page .history-row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid color-mix(in srgb, var(--line) 7%, transparent)}
+.hub-page .history-row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:2px solid var(--ink);color:var(--ink)}
 .hub-page .history-row:first-child{border-top:0;padding-top:4px}
-.history-icon{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:10px;background:color-mix(in srgb, var(--raised) 6%, transparent);border:1px solid color-mix(in srgb, var(--line) 9%, transparent);color:var(--gold)}
+.history-icon{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:10px;background:var(--sun);border:2px solid var(--ink);color:var(--ink)}
 .history-icon .icon{width:16px;height:16px}
-.history-copy{flex:1;min-width:0;font-size:12px}
-.history-copy b{display:block;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.history-copy small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
-.hub-page .history-row>b{margin-left:auto;font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.history-copy{flex:1;min-width:0;font-size:13px;color:var(--ink)}
+.history-copy b{display:block;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.history-copy small{display:block;color:var(--ink);font-size:11px;margin-top:3px}
+.hub-page .history-row>b{margin-left:auto;font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hub-page .result-tag{background:var(--raised);border:2px solid var(--ink);color:var(--ink);font-weight:800}
+.hub-page .result-tag.win{background:var(--sun);color:var(--ink)}
 .hub-page .practice-history,.hub-page .history-panel{margin-top:0}
 .hub-page .practice-history .history-row{justify-content:flex-start}
 .match-row .result-tag{flex-shrink:0}
 
-.ranks-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,280px);gap:20px 28px;align-items:center}
-.ranks-hero h2{font-size:clamp(26px,3vw,34px);color:var(--gold);margin:2px 0 8px}
-.ranks-hero>div>p{max-width:560px}
-.rank-rules{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.rank-rules>span{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 9%, transparent);background:color-mix(in srgb, var(--raised) 5%, transparent);font-size:11px;font-weight:700;color:var(--ink)}
-.ranks-you{padding:18px 18px 16px;border:1px solid color-mix(in srgb, var(--gold) 33%, transparent);border-radius:16px;background:var(--surface);text-align:center}
-.ranks-you .eyebrow{margin-bottom:6px}
-.ranks-you>b{display:block;font-size:40px;letter-spacing:-.04em;color:var(--gold);line-height:1.05}
-.ranks-you>p{margin:6px 0 10px;font-size:13px;color:var(--ink)}
-.ranks-you-stats{display:flex;justify-content:center;gap:14px;font-size:11px;color:var(--muted)}
-.ranks-you.is-guest{background:var(--surface);border-color:color-mix(in srgb, var(--blue) 40%, transparent)}
-.ranks-you.is-guest h3{font-size:16px;margin:4px 0 12px}
+.ranks-you{display:grid;grid-template-columns:64px auto minmax(0,1fr);align-items:center;gap:14px 18px;padding:14px 18px;border:2px solid var(--ink);border-radius:16px;background:var(--sun);box-shadow:0 4px 0 var(--coral);color:var(--ink);text-align:left}
+.rank-avatar{display:block;flex:none;object-fit:contain}
+.ranks-you .rank-avatar{width:64px;height:64px;filter:drop-shadow(0 4px 0 color-mix(in srgb,var(--ink) 18%,transparent))}
+.ranks-you .eyebrow{margin:0 0 4px;color:var(--ink);font-weight:800}
+.ranks-you-place>b{display:block;font-size:42px;letter-spacing:-.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.ranks-you-copy{min-width:0}
+.ranks-you-copy p{margin:0;font-size:18px;font-weight:800;color:var(--ink)}
+.ranks-you-copy h3{font-size:18px;margin:0 0 6px;color:var(--ink)}
+.ranks-you-stats{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px;font-size:12px;font-weight:800;color:var(--ink)}
+.ranks-you-stats b{font-size:16px;margin-right:4px}
+.ranks-you.is-guest{grid-template-columns:1fr;background:var(--raised);text-align:left}
+.ranks-you.is-guest .button{width:auto;margin-top:10px}
 
-.ranks-podium{display:grid;grid-template-columns:1fr 1.18fr 1fr;align-items:end;gap:12px}
-.podium-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 12px 16px;border:1px solid color-mix(in srgb, var(--line) 9%, transparent);border-radius:16px;background:var(--panel-grad);text-align:center;min-width:0;box-shadow:inset 0 1px 0 color-mix(in srgb, var(--shadow) 8%, transparent),0 10px 24px color-mix(in srgb, var(--shadow) 40%, transparent)}
-.podium-card b{font-size:15px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.podium-place{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.podium-trophies{display:inline-flex;align-items:center;gap:5px;font-size:16px;font-weight:800;color:var(--gold)}
-.podium-trophies .icon{width:16px;height:16px;color:var(--gold)}
-.podium-card small{font-size:11px;color:var(--muted)}
-.podium-card.is-gold{order:2;transform:translateY(-10px);border-color:color-mix(in srgb, var(--gold) 60%, transparent);box-shadow:inset 0 1px 0 color-mix(in srgb, var(--shadow) 20%, transparent),0 0 28px color-mix(in srgb, var(--shadow) 20%, transparent),0 12px 28px color-mix(in srgb, var(--shadow) 50%, transparent);padding-top:24px}
-.podium-card.is-silver{order:1;border-color:color-mix(in srgb, var(--blue) 40%, transparent)}
-.podium-card.is-bronze{order:3;border-color:color-mix(in srgb, var(--danger) 40%, transparent)}
-.podium-card.is-you{outline:2px solid var(--gold);outline-offset:2px}
-.podium-card.is-gold .podium-place{color:var(--gold)}
-.podium-card.is-silver .podium-place{color:var(--ink)}
-.podium-card.is-bronze .podium-place{color:var(--danger)}
+.ranks-podium{display:grid;grid-template-columns:1fr 1.22fr 1fr;align-items:end;gap:12px;padding:18px 8px 22px;max-width:680px;margin:0 auto;width:100%;position:relative}
+.ranks-podium::after{content:"";position:absolute;left:10%;right:10%;bottom:8px;height:14px;border-radius:999px;background:var(--ink);opacity:.12;pointer-events:none}
+.podium-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px 36px;border:2px solid var(--ink);border-radius:18px 18px 10px 10px;background:var(--raised);text-align:center;min-width:0;box-shadow:0 5px 0 var(--coral);color:var(--ink);overflow:visible}
+.podium-card .rank-avatar{width:72px;height:72px}
+.podium-card b{font-size:16px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.podium-medal{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--sun);font-size:16px;font-weight:850;box-shadow:0 2px 0 var(--coral)}
+.podium-trophies{display:inline-flex;align-items:center;gap:5px;font-size:18px;font-weight:850;color:var(--ink)}
+.podium-trophies .icon{width:16px;height:16px;color:var(--ink)}
+.podium-card small{font-size:11px;font-weight:800;color:var(--ink)}
+.podium-plinth{position:absolute;left:8px;right:8px;bottom:8px;height:22px;border-radius:6px;background:var(--ink);color:var(--sun);font-size:10px;font-weight:850;letter-spacing:.14em;display:grid;place-items:center;font-style:normal}
+.podium-card.is-gold{order:2;background:var(--sun);padding-top:22px;min-height:248px}
+.podium-card.is-gold .podium-medal{width:40px;height:40px;font-size:18px}
+.podium-card.is-gold .rank-avatar{width:88px;height:88px}
+.podium-card.is-silver{order:1;min-height:200px}
+.podium-card.is-silver .podium-medal{background:var(--raised);color:var(--ink);border:2px solid var(--ink)}
+.podium-card.is-silver .podium-plinth{background:var(--raised);color:var(--ink);border:2px solid var(--ink)}
+.podium-card.is-bronze{order:3;min-height:186px;background:color-mix(in srgb,var(--coral) 26%,var(--raised))}
+.podium-card.is-bronze .podium-medal{background:var(--coral);color:var(--white)}
+.podium-card.is-bronze .podium-plinth{background:var(--coral);color:var(--white)}
+.podium-card.is-you{box-shadow:0 5px 0 var(--ink)}
+.podium-card .you-badge{position:absolute;top:10px;right:8px;margin:0}
 
-.ranks-board{padding:8px 20px 16px}
-.ranks-board .table-heading,.ranks-board .rank-row{display:grid;grid-template-columns:52px minmax(0,1.4fr) 88px 108px;gap:10px;align-items:center}
-.ranks-board .table-heading{font-size:10px;letter-spacing:.08em;font-weight:750;color:var(--blue);padding:16px 8px 12px;text-transform:uppercase}
-.ranks-board .table-heading>span:nth-child(3),.ranks-board .table-heading>span:nth-child(4),.ranks-board .rank-record{justify-content:flex-end;text-align:right}
-.ranks-board .rank-row{padding:12px 8px;border-top:1px solid color-mix(in srgb, var(--line) 7%, transparent);font-size:13px;border-radius:10px}
-.ranks-board .rank-row>span{display:flex;align-items:center;gap:10px;min-width:0}
-.trainer-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank-record{color:var(--muted);font-variant-numeric:tabular-nums}
-.rank-trophies{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:var(--gold);font-weight:750;font-variant-numeric:tabular-nums}
-.rank-trophies .icon{width:15px;height:15px;color:var(--gold)}
-.you-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;background:var(--raised);color:var(--gold);font-size:9px;font-weight:850;letter-spacing:.06em}
-.rank-row.is-you{background:color-mix(in srgb, var(--raised) 9%, transparent);border:1px solid color-mix(in srgb, var(--gold) 33%, transparent);border-top-color:color-mix(in srgb, var(--gold) 33%, transparent);margin:4px 0}
-.rank-row.is-1 .rank-number{background:color-mix(in srgb, var(--raised) 33%, transparent);color:var(--gold);border-color:var(--line)}
-.rank-row.is-2 .rank-number{background:color-mix(in srgb, var(--raised) 33%, transparent);color:var(--ink);border-color:var(--line)}
-.rank-row.is-3 .rank-number{background:color-mix(in srgb, var(--raised) 33%, transparent);color:var(--gold);border-color:var(--danger)}
-.ranks-empty{display:grid;place-items:center;gap:10px;padding:36px 16px;text-align:center}
-.ranks-empty h3{font-size:18px}
-.ranks-empty p{max-width:360px}
-.ranks-empty .rank-emblem{margin-bottom:4px}
+.ranks-board{padding:8px 16px 16px}
+.ranks-board-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 8px 4px}
+.ranks-board-head h3{font-size:16px;color:var(--ink)}
+.ranks-board-head>span{font-size:12px;font-weight:750;color:var(--ink)}
+.ranks-board .table-heading,.ranks-board .rank-row{display:grid;grid-template-columns:48px minmax(0,1.4fr) 88px 108px;gap:10px;align-items:center}
+.ranks-board .table-heading{font-size:11px;letter-spacing:.08em;font-weight:800;color:var(--ink);padding:12px 10px 10px;text-transform:uppercase}
+.ranks-board .table-heading>span:nth-child(3),.ranks-board .table-heading>span:nth-child(4),.ranks-board .rank-record,.ranks-board .rank-trophies{justify-content:flex-end;text-align:right}
+.ranks-board .rank-row{padding:10px;border:2px solid transparent;font-size:14px;border-radius:12px;color:var(--ink)}
+.ranks-board .rank-row+.rank-row{margin-top:6px}
+.rank-fighter{display:flex;align-items:center;gap:10px;min-width:0}
+.rank-fighter .rank-avatar{width:40px;height:40px;flex:none}
+.trainer-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:800}
+.rank-record{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:800}
+.rank-trophies{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:var(--ink);font-weight:850;font-variant-numeric:tabular-nums}
+.rank-trophies .icon{width:15px;height:15px;color:var(--ink)}
+.rank-number{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--raised);border:2px solid var(--ink);color:var(--ink);font-size:14px;font-weight:850}
+.you-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;background:var(--sun);color:var(--ink);border:1px solid var(--ink);font-size:9px;font-weight:850;letter-spacing:.06em;flex:none}
+.rank-row.is-you{background:var(--sun);border-color:var(--ink);box-shadow:0 3px 0 var(--coral)}
+.rank-row.is-1{background:color-mix(in srgb,var(--sun) 42%,var(--surface));border-color:var(--ink)}
+.rank-row.is-1 .rank-number{background:var(--sun);color:var(--ink)}
+.rank-row.is-2 .rank-number{background:var(--raised);color:var(--ink)}
+.rank-row.is-3 .rank-number{background:var(--coral);color:var(--white)}
+.ranks-empty{display:grid;place-items:center;gap:10px;padding:36px 16px;text-align:center;color:var(--ink)}
+.ranks-empty h3{font-size:18px;color:var(--ink)}
+.ranks-empty p{max-width:360px;color:var(--ink)}
+.ranks-empty .rank-emblem{margin-bottom:4px;background:var(--sun);border:2px solid var(--ink);color:var(--ink)}
 .ranks-empty .button{width:auto;min-width:180px;margin-top:6px}
 
 @media(max-width:900px){
@@ -119,24 +139,42 @@
   .profile-hero-art{width:108px;height:108px;border-radius:22px}
   .profile-hero-art .profile-sprite{width:96px}
   .profile-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .profile-balances,.profile-feeds,.ranks-hero{grid-template-columns:1fr}
-  .ranks-podium{grid-template-columns:1fr;max-width:420px;margin:0 auto;width:100%}
-  .podium-card.is-gold{order:1;transform:none}
-  .podium-card.is-silver{order:2}
-  .podium-card.is-bronze{order:3}
+  .profile-balances,.profile-feeds{grid-template-columns:1fr}
+  .podium-card.is-gold{min-height:210px}
 }
 @media(max-width:759px){
-  .hub-page{gap:14px}
-  .hub-page .panel{padding:18px}
+  .hub-page{gap:12px}
+  .hub-page .panel{padding:14px}
   .profile-hero{grid-template-columns:1fr;text-align:center}
   .profile-hero-art{margin:0 auto}
   .profile-chips,.profile-hero-actions{justify-content:center}
   .profile-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
   .profile-hero-actions .button{flex:1;min-width:140px}
   .balance-meta{grid-template-columns:1fr;gap:8px}
-  .ranks-board{padding:4px 10px 12px}
-  .ranks-board .table-heading,.ranks-board .rank-row{grid-template-columns:40px minmax(0,1fr) 70px;gap:6px}
-  .ranks-board .table-heading>span:nth-child(3),.ranks-board .rank-row>span:nth-child(3){display:none}
-  .rank-trophies{font-size:12px}
-  .ranks-you>b{font-size:32px}
+  .ranks-you{grid-template-columns:48px auto minmax(0,1fr);gap:10px;padding:12px}
+  .ranks-you .rank-avatar{width:48px;height:48px}
+  .ranks-you-place>b{font-size:28px}
+  .ranks-you-copy p{font-size:15px}
+  .ranks-you-stats{gap:6px 12px;font-size:11px}
+  .ranks-you-stats b{font-size:14px}
+  .ranks-podium{gap:6px}
+  .podium-card{padding:12px 6px 30px;gap:4px}
+  .podium-card .rank-avatar{width:48px;height:48px}
+  .podium-card.is-gold{min-height:176px;padding-top:14px}
+  .podium-card.is-gold .rank-avatar{width:60px;height:60px}
+  .podium-card.is-silver{min-height:148px}
+  .podium-card.is-bronze{min-height:136px}
+  .podium-card b{font-size:12px}
+  .podium-trophies{font-size:14px}
+  .podium-medal{width:26px;height:26px;font-size:13px}
+  .podium-card.is-gold .podium-medal{width:30px;height:30px}
+  .podium-plinth{height:16px;font-size:8px;left:4px;right:4px;bottom:6px}
+  .ranks-board{padding:4px 6px 10px}
+  .ranks-board-head{flex-direction:column;align-items:flex-start;gap:4px;padding:6px 6px 2px}
+  .ranks-board-head>span{font-size:11px}
+  .ranks-board .table-heading,.ranks-board .rank-row{grid-template-columns:36px minmax(0,1fr) 72px;gap:6px}
+  .ranks-board .table-heading>span:nth-child(3),.ranks-board .rank-row .rank-record{display:none}
+  .rank-fighter .rank-avatar{width:32px;height:32px}
+  .rank-number{width:30px;height:30px;font-size:12px;border-radius:8px}
+  .rank-trophies{font-size:13px}
 }
