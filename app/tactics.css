@@ -6,3 +6,38 @@
 @media(max-height:580px) and (min-width:600px){.t-battle-intel{display:none}.t-play-grid{display:flex;flex-direction:row;gap:0}.t-arena-column{flex:1;flex-direction:row}.t-viewport{border-radius:9px 0 0 9px}.t-combat-dock{width:230px;border:1px solid var(--line);border-left:0;border-radius:0 9px 9px 0;overflow:auto;display:flex;flex-direction:column;justify-content:center}.t-captain-actions{grid-template-columns:1fr 1fr}.t-captain-actions>button{min-height:45px}.t-hand{grid-template-columns:1fr 1fr}.t-hand-card{display:flex;align-items:center;min-height:52px}.t-hand-card>.sprite{width:36px;height:36px}.t-hand-card b{font-size:8px}.t-resource-row small{display:none}.t-clock strong{font-size:24px}.t-match-head{padding:7px 0}}
 @media(max-width:359px){.t-portrait,.t-portrait .sprite{height:88px}.t-fighter h3{font-size:10px}.t-fighter-role{font-size:7px}.t-captain-pick{font-size:8px!important}.t-specializations summary{font-size:11px}.t-spec-row>span{grid-template-columns:1fr 120px}.t-match-actions .t-icon{display:none}.t-hand-card b{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.tactics-root *{animation:none!important;transition:none!important}}
+.t-play-grid-fight{grid-template-columns:minmax(0,1fr);gap:0}
+.t-fight-strip{position:absolute;top:8px;left:8px;right:72px;z-index:4;display:flex;justify-content:space-between;gap:12px;pointer-events:none}
+.t-intel-chip{pointer-events:auto;display:flex;align-items:center;gap:8px;min-width:0;width:min(280px,38%);padding:7px 9px;border:2px solid var(--ink);border-radius:10px;background:color-mix(in srgb,var(--raised) 92%,transparent);color:var(--ink);box-shadow:0 3px 0 var(--coral)}
+.t-intel-chip .eyebrow{font-size:9px;font-weight:800;letter-spacing:.12em;color:var(--ink);margin:0 0 2px}
+.t-intel-chip b,.t-intel-chip strong{display:block;font-size:13px;font-weight:850;line-height:1.15;color:var(--ink)}
+.t-intel-chip p{margin:2px 0 0;font-size:11px;font-weight:700;line-height:1.3;color:var(--ink)}
+.t-captain-chip>.sprite,.t-chip-art{width:40px;height:40px;flex:none}
+.t-captain-chip .t-health-track{height:8px;margin:4px 0 2px}
+.t-captain-chip .t-health-track i{background:var(--ally)}
+.t-captain-chip .t-muted{font-size:11px;font-weight:800}
+.t-relay-chip{display:block}
+.t-relay-chip .t-relay-track{height:5px;margin:5px 0 0}
+.t-play-grid-fight .t-scene-top{inset:10px 10px auto auto;width:auto;justify-content:flex-end}
+.t-play-grid-fight .t-scene-top>span{display:none}
+.t-match-actions .market-info{color:var(--ink);background:var(--raised);border:2px solid var(--ink);font-size:10px;font-weight:800;letter-spacing:.04em;padding:6px 9px;min-height:34px;border-radius:6px}
+.t-play-grid-fight .t-viewport{border-radius:11px 11px 0 0}
+.t-captain-actions>button:disabled{opacity:1;background:var(--recess);box-shadow:none}
+.t-captain-actions>button:disabled kbd{background:var(--raised);color:var(--ink)}
+.t-captain-actions>button:disabled small{color:var(--ink)}
+.t-captain-actions>button.is-ready:not(:disabled),.t-captain-actions>button.is-active:not(:disabled){background:var(--sun);border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.t-captain-actions>button.is-ready:not(:disabled) kbd,.t-captain-actions>button.is-active:not(:disabled) kbd{background:var(--ink);color:var(--sun)}
+@media(max-width:1100px){.t-play-grid-fight{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:759px){
+ .t-match-actions .market-info{font-size:8px;padding:4px 6px;min-height:30px}
+ .t-fight-strip{top:6px;left:6px;right:6px;gap:6px}
+ .t-play-grid-fight .t-scene-top{inset:88px 8px auto auto}
+ .t-intel-chip{width:min(46%,220px);padding:6px 8px;border-radius:8px}
+ .t-intel-chip b,.t-intel-chip strong{font-size:12px}
+ .t-intel-chip p,.t-captain-chip .t-muted{font-size:10px}
+ .t-captain-chip>.sprite,.t-chip-art{width:32px;height:32px;display:block}
+ .t-captain-chip .t-health-track{height:6px;margin:3px 0 2px}
+}
+@media(max-height:580px) and (min-width:600px){
+ .t-play-grid-fight .t-fight-strip{right:64px}
+}

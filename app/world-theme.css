@@ -229,8 +229,20 @@ body::before {
 .app-shell.battle-screen .lane-controls button { background:var(--content-raised); border-color:var(--world-line); color:var(--world-ink); box-shadow:0 2px 0 var(--coral); }
 .app-shell.battle-screen .lane-controls button:hover { background:color-mix(in srgb,var(--world-sky) 24%,var(--content-raised)); }
 .app-shell.battle-screen .elixir-bar { background:var(--content-recess); border-color:var(--world-line); }.app-shell.battle-screen .elixir-bar>span { background:var(--world-sky); }
-.health-label { --hp:var(--world-sky); --edge:var(--accent-soft); }.health-label.is-rival { --hp:var(--danger); --edge:var(--raised); }
-.health-name { background:color-mix(in srgb,var(--surface) 92%,transparent); color:var(--ink); }.health-track { background:var(--recess); }
+.health-label { --hp:var(--ally); --edge:var(--ally); width:62px; height:26px; }
+.health-label.is-rival { --hp:var(--rival); --edge:var(--rival); }
+.health-label.is-captain,.health-label.is-tower { width:76px; }
+.health-name { display:block; overflow:visible; height:auto; min-height:12px; font-size:9px; font-weight:800; line-height:1.2; letter-spacing:-.02em; padding:0 2px; white-space:nowrap; background:color-mix(in srgb,var(--surface) 92%,transparent); color:var(--ink); }
+.health-label:not(.is-tower) { width:76px; height:26px; }
+.health-label:not(.is-tower) .health-name { font-size:9px; line-height:1.2; color:var(--ink); }
+.health-label[data-market] .health-name,
+.health-label[data-market=up] .health-name,
+.health-label[data-market=down] .health-name,
+.health-label[data-market=neutral] .health-name,
+.health-label[data-market=flat] .health-name { color:var(--ink); }
+.health-track { background:var(--recess); height:11px; }
+.health-track b { display:block; }
+.health-stem { top:100%; }
 .t-match-head { background:var(--world-panel); color:var(--world-ink); border:1px solid var(--world-line); border-radius:11px; padding:8px 13px; }
 .t-match-head small,.t-clock>span,.t-match-head .match-connection { color:var(--ink); }
 .t-match-head .t-icon { background:var(--content-raised); color:var(--world-ink); }.t-clock strong { color:var(--world-ink); }
@@ -533,16 +545,24 @@ body::before {
 .t-objective strong { font-size:13px; }
 .t-objective>p,.t-shortcuts>span { font-size:12px; }
 .t-controls-help p { font-size:13px; }
-.t-shortcuts kbd,.t-captain-actions kbd {
+.t-shortcuts kbd {
  background:var(--sun); color:var(--ink); border:2px solid var(--ink); font-weight:800;
+}
+.t-captain-actions kbd {
+ background:var(--raised); color:var(--ink); border:2px solid var(--ink); font-weight:800;
 }
 .t-captain-actions>button {
  background:var(--raised); border:2px solid var(--ink); color:var(--ink); box-shadow:0 3px 0 var(--coral);
 }
+.t-captain-actions>button:disabled { opacity:1; background:var(--recess); box-shadow:none; }
 .t-captain-actions>button>span { font-size:13px; font-weight:800; color:var(--ink); }
 .t-captain-actions small { font-size:10px; font-weight:750; color:var(--ink); }
-.t-captain-actions .is-active { background:var(--sun); border-color:var(--ink); }
-.t-aim-hint { background:var(--sun); color:var(--ink); border:2px solid var(--ink); font-weight:800; }
+.t-captain-actions .is-active:not(:disabled),.t-captain-actions .is-ready:not(:disabled) { background:var(--sun); border-color:var(--ink); box-shadow:0 3px 0 var(--ink); }
+.t-captain-actions .is-active:not(:disabled) kbd,.t-captain-actions .is-ready:not(:disabled) kbd { background:var(--ink); color:var(--sun); }
+.t-aim-hint { background:var(--raised); color:var(--ink); border:2px solid var(--ink); font-weight:800; }
+.t-intel-chip { background:var(--raised); border:2px solid var(--ink); color:var(--ink); }
+.t-intel-chip .eyebrow,.t-intel-chip b,.t-intel-chip strong,.t-intel-chip p,.t-captain-chip .t-muted { color:var(--ink); }
+.t-captain-chip .t-health-track i { background:var(--ally); }
 .t-resource-row,.t-resource-row b,.t-resource-row>span,.t-resource-row small { color:var(--ink); }
 
 .brand,.trainer-chip,.balance-chip,.desktop-nav a,.mobile-nav a { text-decoration:none; color:inherit; }
@@ -678,4 +698,5 @@ body::before {
  .t-captain-mini { display:flex !important; align-items:center; gap:6px; float:none !important; margin:0 0 6px; }
  .t-captain-mini>.sprite { display:block !important; width:34px; height:34px; }
  .t-captain-mini b { font-size:13px; }
+ .t-chip-art { display:block !important; width:34px; height:34px; }
 }

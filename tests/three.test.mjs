@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {createKit,createCreature,animateCreature,disposeCreature,CHARACTER_LANDMARKS} from '../public/game/three/models.js';
 import {buildEnvironment,createTower} from '../public/game/three/environment.js';
 import {createEffects} from '../public/game/three/effects.js';
-import {boardPoint,boardFromWorld,fitCamera,pickBoard,legIK,attackEnvelope,arenaFramePoints} from '../public/game/three/math.js';
+import {boardPoint,boardFromWorld,fitCamera,pickBoard,legIK,attackEnvelope,arenaFramePoints,arenaCombatPoints} from '../public/game/three/math.js';
 import {combatPose,combatTiming} from '../public/game/three/motion.js';
 import {placeHealthLabels} from '../public/game/three/health.js';
 import {newGame,deploy,step} from '../public/game/engine.js';
@@ -34,13 +34,27 @@ test('default framing fills the available axis while retaining elevated towers a
  assert.ok(Math.max(...xs)<.96&&Math.min(...xs)>-.96);
  assert.ok(Math.max(...ys)<.92&&Math.min(...ys)>-.92);
 });
+test('combat framing sits closer than the water-corner frame while keeping kings on screen',()=>{
+ const wide=new THREE.PerspectiveCamera();fitCamera(wide,.79);
+ const combat=new THREE.PerspectiveCamera();fitCamera(combat,.79,0,false,1,arenaCombatPoints());
+ assert.ok(combat.position.length()<wide.position.length()*.92,'Skirmish should zoom past the surrounding water.');
+ for(const z of [-6.12,6.12]){const p=new THREE.Vector3(0,2.75,z).project(combat);assert.ok(Math.abs(p.x)<1&&Math.abs(p.y)<1);}
+});
+function labelOverlap(a,b){return Math.max(0,Math.min(a.left+a.width,b.left+b.width)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.top+a.height,b.top+b.height)-Math.max(a.top,b.top));}
 test('crowded health indicators stay inside the viewport and separate nearby labels',()=>{
  for(const [width,height] of [[320,350],[390,560],[680,470]]){
-  const source=Array.from({length:6},(_,i)=>({id:i,x:width/2+(i%2)*7,y:height/2+(i%3)*8,width:62,height:25,priority:i}));
+  const source=Array.from({length:6},(_,i)=>({id:i,x:width/2+(i%2)*7,y:height/2+(i%3)*8,width:76,height:26,priority:i}));
   const placed=placeHealthLabels(source,width,height);assert.equal(placed.length,6);
   for(const p of placed){assert.ok(p.left>=0&&p.top>=35);assert.ok(p.left+p.width<=width&&p.top+p.height<=height);}
-  for(let i=0;i<placed.length;i++)for(let j=i+1;j<placed.length;j++){const a=placed[i],b=placed[j],overlap=Math.max(0,Math.min(a.left+a.width,b.left+b.width)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.top+a.height,b.top+b.height)-Math.max(a.top,b.top));assert.equal(overlap,0,'Nearby HP bars must not cover one another.');}
+  for(let i=0;i<placed.length;i++)for(let j=i+1;j<placed.length;j++)assert.equal(labelOverlap(placed[i],placed[j]),0,'Nearby HP bars must not cover one another.');
  }
+});
+test('stacked lane fighters keep separate nameplates from each other and the tower',()=>{
+ const width=680,height=470,x=168,y=132;
+ const source=[{id:'tower',x,y:y-10,width:76,height:26,priority:2},{id:0,x,y,width:76,height:26,priority:.2},{id:1,x:x+5,y:y+4,width:76,height:26,priority:.35},{id:2,x:x-4,y:y+6,width:76,height:26,priority:.5}];
+ const placed=placeHealthLabels(source,width,height);assert.equal(placed.length,4);
+ for(const p of placed){assert.ok(p.left>=0&&p.top>=35);assert.ok(p.left+p.width<=width&&p.top+p.height<=height);}
+ for(let i=0;i<placed.length;i++)for(let j=i+1;j<placed.length;j++)assert.equal(labelOverlap(placed[i],placed[j]),0,'Stacked AAPLx-style labels must not cover one another.');
 });
 test('attack archetypes use different pounce, slam, charge and casting poses',()=>{
  const kit=createKit(),poses=[];
