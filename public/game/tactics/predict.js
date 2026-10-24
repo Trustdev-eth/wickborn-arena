@@ -1,28 +1,31 @@
 import {applyTacticsCommand,stepTactics} from './engine.js';
 import {TACTICS_STEP} from './config.js';
-import {adoptKinematics,followClock,seedVelocity} from '../smooth.js';
+import {adoptKinematics,followClock,pendingKey,seedVelocity,worldKey} from '../smooth.js';
 
 // Local captain input is applied immediately, then rebased onto authoritative
 // snapshots so Skirmish online feels like practice without awarding a disconnect win.
 export class TacticsPredictor {
- constructor({side=0,maxAhead=1,maxLead=.2,pendingLife=5}={}){this.side=side;this.maxAhead=maxAhead;this.maxLead=maxLead;this.pendingLife=pendingLife;this.auth=null;this.state=null;this.pending=[];this.samples=[];this.offset=null;this.target=null;this.rtt=.08;this.lastFrame=null;this.time=0;this.lastSequence=-1;}
+ constructor({side=0,maxAhead=1,maxLead=.2,pendingLife=5}={}){this.side=side;this.maxAhead=maxAhead;this.maxLead=maxLead;this.pendingLife=pendingLife;this.auth=null;this.state=null;this.pending=[];this.samples=[];this.offset=null;this.target=null;this.rtt=.08;this.lastFrame=null;this.time=0;this.lastSequence=-1;this.worldKey='';}
  setRtt(seconds){if(Number.isFinite(seconds)&&seconds>0)this.rtt=this.rtt*.75+Math.min(1,seconds)*.25;}
  receive(packet,now=performance.now()){
   const s=packet?.state;if(!s||!Number.isFinite(s.time))return false;if(this.auth&&s.time+1e-9<this.auth.time)return false;
   const sequence=packet.sequence??packet.version??Math.round(s.time*1000),processed=new Set(packet.acks||[]);
   const pending=this.pending.filter(c=>!processed.has(c.actionId)&&(this.state?.time??0)-c.at<this.pendingLife);
   if(this.lastSequence>=0&&sequence<this.lastSequence)return false;
-  if(this.lastSequence>=0&&sequence===this.lastSequence){if(pending.length===this.pending.length)return false;this.pending=pending;this.rebuild();return true;}
-  this.pending=pending;this.lastSequence=sequence;this.auth=structuredClone(s);this.samples.push({at:now,offset:s.time-now/1000});this.samples=this.samples.slice(-24);
+  const sameSeq=this.lastSequence>=0&&sequence===this.lastSequence,changed=pendingKey(pending)!==pendingKey(this.pending)||worldKey(s)!==this.worldKey;
+  if(sameSeq&&!changed)return false;
+  this.pending=pending;this.lastSequence=sequence;this.auth=s;this.worldKey=worldKey(s);
+  this.samples.push({at:now,offset:s.time-now/1000});this.samples=this.samples.slice(-12);
   this.target=followClock(this.samples,now,this.rtt,this.maxLead);if(this.offset===null||Math.abs(this.target-this.offset)>.35)this.offset=this.target;
-  this.rebuild();return true;
+  if(!this.state||changed)this.rebuild();
+  return true;
  }
  prepare(sim){sim.seed??=1;sim.commands??=[];sim.recentEvents??=[];return sim;}
  rebuild(){
   if(!this.auth)return;const prev=this.state,sim=this.prepare(structuredClone(this.auth)),goal=Math.min(Math.max(prev?.time??sim.time,sim.time),sim.time+this.maxAhead),queue=[...this.pending].sort((a,b)=>a.at-b.at);
   seedVelocity(prev,sim);
   const replay=()=>{while(queue.length&&queue[0].at<=sim.time+1e-6)this.apply(sim,queue.shift());};
-  replay();for(let n=0;sim.status==='playing'&&sim.time+TACTICS_STEP<=goal+1e-6&&n<80;n++){stepTactics(sim);replay();}while(queue.length)this.apply(sim,queue.shift());
+  replay();for(let n=0;sim.status==='playing'&&sim.time+TACTICS_STEP<=goal+1e-6&&n<32;n++){stepTactics(sim);replay();}while(queue.length)this.apply(sim,queue.shift());
   if(sim.status==='playing')adoptKinematics(prev,sim,this.side,{squads:true});
   this.state=sim;
  }

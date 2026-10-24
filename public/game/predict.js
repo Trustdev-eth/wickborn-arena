@@ -14,14 +14,14 @@ export class Predictor {
   const pending=this.pending.filter(c=>!processed.has(c.actionId)&&(this.state?.time??0)-c.at<this.pendingLife);
   if(this.lastSequence>=0&&sequence<this.lastSequence)return false;
   if(this.lastSequence>=0&&sequence===this.lastSequence){if(pending.length===this.pending.length)return false;this.pending=pending;this.rebuild();return true;}
-  this.pending=pending;this.lastSequence=sequence;this.auth=structuredClone(s);this.samples.push({at:now,offset:s.time-now/1000});this.samples=this.samples.slice(-24);
+  this.pending=pending;this.lastSequence=sequence;this.auth=s;this.samples.push({at:now,offset:s.time-now/1000});this.samples=this.samples.slice(-12);
   this.target=followClock(this.samples,now,this.rtt,this.maxLead);if(this.offset===null||Math.abs(this.target-this.offset)>.35)this.offset=this.target;
   this.rebuild();return true;
  }
  rebuild(){
   if(!this.auth)return;const prev=this.state,sim=structuredClone(this.auth),goal=Math.min(Math.max(prev?.time??sim.time,sim.time),sim.time+this.maxAhead),queue=[...this.pending].sort((a,b)=>a.at-b.at);
   const replay=()=>{while(queue.length&&queue[0].at<=sim.time+1e-6)this.apply(sim,queue.shift());};
-  replay();for(let n=0;sim.status==='playing'&&sim.time+STEP<=goal+1e-6&&n<40;n++){step(sim);replay();}while(queue.length)this.apply(sim,queue.shift());
+  replay();for(let n=0;sim.status==='playing'&&sim.time+STEP<=goal+1e-6&&n<24;n++){step(sim);replay();}while(queue.length)this.apply(sim,queue.shift());
   if(sim.status==='playing')adoptKinematics(prev,sim,this.side,{onlyCaptains:!this.pending.length});
   this.state=sim;
  }

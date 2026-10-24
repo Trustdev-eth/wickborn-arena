@@ -2,6 +2,23 @@ import {STEP} from './engine.js';
 
 const MAX_SPEED=110,SETTLE=14,HISTORY=6;
 export const SNAP=140;
+
+export function pendingKey(pending){
+ return (pending||[]).map(c=>c.actionId).join(',');
+}
+
+// Ignore x/y/time so walking snapshots do not force a full resim. Combat, orders,
+// spawns and elixir still change the key and rebase.
+export function worldKey(s){
+ if(!s)return '';
+ let k=(s.status||'')+'|'+(s.winner??'')+'|'+(s.units?.length||0);
+ for(const u of s.units||[]){
+  const o=u.order;
+  k+='|'+u.id+':'+(u.card??'')+':'+(u.p??'')+':'+(u.hp|0)+':'+(u.captain?1:0)+':'+(o?((o.x|0)+','+(o.y|0)):'');
+ }
+ for(const t of s.towers||[])k+='#'+(t.id??'')+':'+(t.hp|0);
+ return k;
+}
 export function followClock(samples,now,rtt,maxLead){
  const fresh=samples.filter(s=>now-s.at<=400),list=fresh.length?fresh:samples.slice(-1);
  return Math.max(...list.map(s=>s.offset))+Math.min(maxLead,rtt);
