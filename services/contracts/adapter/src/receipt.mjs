@@ -32,7 +32,7 @@ export function resetReceiptState(){
 }
 
 export function siteOrigin(env=process.env){
- const origin=env.SITE_ORIGIN;
+ const origin=env.SITE_INTERNAL_URL||env.SITE_ORIGIN;
  if(!origin)return null;
  try{
   const url=new URL(origin);

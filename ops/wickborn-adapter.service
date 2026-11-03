@@ -1,0 +1,18 @@
+[Unit]
+Description=Wickborn Arena contract adapter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/ohio/wickborn/wickborn-arena/services/contracts/adapter
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node src/index.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=Wickborn Arena game worker
+Wants=network-online.target
+After=network-online.target wickborn-realtime.service wickborn-adapter.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/ohio/wickborn/wickborn-arena
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to .wrangler/state --ip 127.0.0.1 --port 8880 --inspector-port 0
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

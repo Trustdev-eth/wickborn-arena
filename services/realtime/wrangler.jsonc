@@ -5,6 +5,9 @@
   "compatibility_date": "2026-10-01",
   "durable_objects": {"bindings": [{"name": "MATCHES", "class_name": "MatchRoom"}]},
   "migrations": [{"tag": "v1", "new_sqlite_classes": ["MatchRoom"]}],
-  "vars": {"SITE_ORIGIN": "https://wickborn.onchainme.workers.dev"},
+  "vars": {
+    "SITE_ORIGIN": "https://play.wickbornarena.xyz",
+    "SITE_INTERNAL_URL": "http://127.0.0.1:8880"
+  },
   "observability": {"enabled": true}
 }

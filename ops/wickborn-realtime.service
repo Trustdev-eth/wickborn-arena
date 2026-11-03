@@ -1,0 +1,18 @@
+[Unit]
+Description=Wickborn Arena realtime worker
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/ohio/wickborn/wickborn-arena
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node ./node_modules/wrangler/bin/wrangler.js dev --config services/realtime/wrangler.jsonc --local --compatibility-date 2026-05-22 --ip 127.0.0.1 --port 8881 --inspector-port 0 --persist-to .wrangler/realtime-state
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

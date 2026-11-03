@@ -5,7 +5,8 @@
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "SITE_ORIGIN": "https://wickborn.onchainme.workers.dev",
+    "SITE_ORIGIN": "https://play.wickbornarena.xyz",
+    "SITE_INTERNAL_URL": "http://127.0.0.1:8880",
     "SOLANA_RPC_URL": "https://api.devnet.solana.com",
     "GAME_PROGRAM_ID": "F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x",
     "GAME_TOKEN_DECIMALS": "9",

@@ -4,7 +4,7 @@ import {advanceMatch,runCommand,envelope} from '../../lib/match-engine.js';
 import {TacticsAuthority,TACTICS_PROTOCOL} from '../../public/game/tactics/protocol.js';
 const TACTICS_COMMANDS=new Set(['move','hold','skill','ultimate','barrier','deploy','surrender']);
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
-async function site(env,path,data){const body=JSON.stringify(data),options={method:'POST',headers:await signedHeaders(body,env.REALTIME_SHARED_SECRET),body,signal:AbortSignal.timeout(7000)},response=env.SITES?await env.SITES.fetch('https://sites.internal/api/internal/'+path,options):await fetch(new URL('/api/internal/'+path,env.SITE_ORIGIN),options);if(!response.ok)throw new Error('Account service unavailable');return response.json();}
+async function site(env,path,data){const origin=env.SITE_INTERNAL_URL||env.SITE_ORIGIN,body=JSON.stringify(data),options={method:'POST',headers:await signedHeaders(body,env.REALTIME_SHARED_SECRET),body,signal:AbortSignal.timeout(7000)},response=env.SITES?await env.SITES.fetch('https://sites.internal/api/internal/'+path,options):await fetch(new URL('/api/internal/'+path,origin),options);if(!response.ok)throw new Error('Account service unavailable');return response.json();}
 export default {
  async fetch(request,env){
   try{
