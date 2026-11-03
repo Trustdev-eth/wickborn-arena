@@ -9,9 +9,9 @@ if(existsSync('.env.local')){
 const realtime=randomBytes(32).toString('hex');
 const adapter=randomBytes(32).toString('hex');
 writeFileSync('.env.local',[
-  'SITE_ORIGIN=https://wickborn.dillonking130.workers.dev',
-  'REALTIME_URL=https://wickborn-realtime.dillonking130.workers.dev',
-  'CONTRACT_ADAPTER_URL=https://wickborn-adapter.dillonking130.workers.dev',
+  'SITE_ORIGIN=https://wickborn.onchainme.workers.dev',
+  'REALTIME_URL=https://wickborn-realtime.onchainme.workers.dev',
+  'CONTRACT_ADAPTER_URL=https://wickborn-adapter.onchainme.workers.dev',
   'GAME_PROGRAM_ID=F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x',
   'GAME_TOKEN_DECIMALS=9',
   'GAME_TOKEN_SYMBOL=WICKB',
@@ -30,7 +30,7 @@ writeFileSync('services/contracts/adapter/.env',[
   'GAME_TOKEN_DECIMALS=9',
   'GAME_TOKEN_CHAIN=solana:devnet',
   `CONTRACT_ADAPTER_KEY=${adapter}`,
-  'SITE_ORIGIN=https://wickborn.dillonking130.workers.dev',
+  'SITE_ORIGIN=https://wickborn.onchainme.workers.dev',
   'STAKE_LOCK_SECONDS=604800',
 ].join('\n')+'\n');
 console.log('wrote .env.local and adapter .env');

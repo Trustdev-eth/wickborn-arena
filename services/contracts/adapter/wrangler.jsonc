@@ -5,7 +5,7 @@
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "SITE_ORIGIN": "https://wickborn.dillonking130.workers.dev",
+    "SITE_ORIGIN": "https://wickborn.onchainme.workers.dev",
     "SOLANA_RPC_URL": "https://api.devnet.solana.com",
     "GAME_PROGRAM_ID": "F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x",
     "GAME_TOKEN_DECIMALS": "9",

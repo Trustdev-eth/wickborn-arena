@@ -1,0 +1,219 @@
+/* Combat feedback: deploy hits, armed controls, lobby call-to-action motion */
+
+@keyframes card-ready-pulse {
+  0%, 100% { box-shadow: 0 3px 0 var(--ink), 0 0 0 0 color-mix(in srgb, var(--sun) 0%, transparent); }
+  50% { box-shadow: 0 3px 0 var(--ink), 0 0 0 3px color-mix(in srgb, var(--sun) 55%, transparent); }
+}
+
+@keyframes card-selected-pop {
+  0% { transform: translateY(-2px) scale(1); }
+  40% { transform: translateY(-4px) scale(1.03); }
+  100% { transform: translateY(-2px) scale(1); }
+}
+
+@keyframes lane-deploy-pulse {
+  0%, 100% { transform: translateY(0); box-shadow: 0 3px 0 var(--coral, var(--shadow)); }
+  50% { transform: translateY(-2px); box-shadow: 0 5px 0 var(--coral, var(--shadow)), 0 0 18px color-mix(in srgb, var(--sun) 45%, transparent); }
+}
+
+@keyframes deploy-flash {
+  0% { box-shadow: inset 0 0 0 0 color-mix(in srgb, var(--sun) 0%, transparent); }
+  35% { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--sun) 70%, transparent), inset 0 0 40px color-mix(in srgb, var(--blue) 35%, transparent); }
+  100% { box-shadow: inset 0 0 0 0 transparent; }
+}
+
+@keyframes elixir-tick {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes play-start-glow {
+  0%, 100% { box-shadow: 0 4px 0 var(--coral), 0 0 0 0 color-mix(in srgb, var(--sun) 0%, transparent); }
+  50% { box-shadow: 0 5px 0 var(--coral), 0 0 22px color-mix(in srgb, var(--sun) 50%, transparent); }
+}
+
+@keyframes hint-nudge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .82; }
+}
+
+.app-shell.battle-screen .hand-card.is-ready:not(.not-ready) {
+  animation: card-ready-pulse 1.8s ease-in-out infinite;
+}
+
+.app-shell.battle-screen .hand-card.selected {
+  animation: card-selected-pop .35s ease-out;
+}
+
+.app-shell.battle-screen .battle-control.is-armed .hand-card.selected {
+  animation: card-selected-pop .35s ease-out, card-ready-pulse 1.2s ease-in-out infinite;
+}
+
+.app-shell.battle-screen .battle-control.is-armed #hand-hint {
+  color: var(--ink);
+  font-weight: 800;
+  animation: hint-nudge 1.4s ease-in-out infinite;
+}
+
+.app-shell.battle-screen .lane-controls.is-armed button {
+  animation: lane-deploy-pulse 1s ease-in-out infinite;
+  border-color: color-mix(in srgb, var(--sun) 65%, var(--ink));
+  background: color-mix(in srgb, var(--sun) 42%, var(--raised));
+  font-weight: 850;
+  letter-spacing: .04em;
+}
+
+.app-shell.battle-screen .lane-controls.is-armed button:nth-child(2) {
+  animation-delay: .15s;
+}
+
+.app-shell.battle-screen .canvas-wrap.deploy-hit {
+  animation: deploy-flash .45s ease-out;
+}
+
+.app-shell.battle-screen .battle-control.deploy-pop .elixir-bar > span {
+  animation: elixir-tick .4s ease-out;
+}
+
+.play-launch .play-start:not(:disabled) {
+  animation: play-start-glow 2.4s ease-in-out infinite;
+}
+
+.play-type-picker button.active {
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+/* Segmented bot difficulty (Easy / Normal) */
+.difficulty-pick.segment-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  width: min(220px, 100%);
+  margin: 0;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--recess);
+  isolation: isolate;
+}
+
+.difficulty-pick.segment-toggle::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 6px;
+  background: var(--raised);
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--shadow) 12%, transparent);
+  transition: transform .22s ease, background .22s ease, border-color .22s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.difficulty-pick.segment-toggle[data-value="normal"]::before {
+  transform: translateX(100%);
+}
+
+.difficulty-pick.segment-toggle button {
+  position: relative;
+  z-index: 1;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  transition: color .18s ease;
+}
+
+.difficulty-pick.segment-toggle button:hover:not(.active) {
+  color: var(--ink);
+}
+
+.difficulty-pick.segment-toggle button.active {
+  background: transparent;
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.lobby-difficulty .difficulty-pick.segment-toggle {
+  flex-shrink: 0;
+}
+
+.play-type-picker button:active:not(:disabled),
+.game-picker > button:active {
+  transform: translateY(2px);
+}
+
+.game-picker > button.active > span {
+  animation: card-selected-pop .5s ease-out;
+}
+
+.tactics-root .t-hand-card.is-ready:not(.not-ready) {
+  animation: card-ready-pulse 1.8s ease-in-out infinite;
+}
+
+.tactics-root .t-hand-card.is-selected.is-ready {
+  animation: card-selected-pop .35s ease-out, card-ready-pulse 1.2s ease-in-out infinite;
+}
+
+.tactics-root .t-captain-actions > button.is-ready {
+  animation: lane-deploy-pulse 1.1s ease-in-out infinite;
+}
+
+.app-shell.battle-screen .lane-controls button {
+  display: grid;
+  place-items: center;
+  gap: 1px;
+  line-height: 1.1;
+}
+
+.app-shell.battle-screen .lane-controls .lane-btn-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+.app-shell.battle-screen .lane-controls button small {
+  font-size: 8px;
+  font-weight: 700;
+  opacity: .85;
+}
+
+.app-shell.battle-screen .lane-controls .lane-kbd-hint {
+  display: none;
+}
+
+.app-shell.battle-screen[data-dock="side"] .lane-controls .lane-kbd-hint {
+  display: block;
+  font-size: 7px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .difficulty-pick.segment-toggle::before {
+    transition: none;
+  }
+
+  .app-shell.battle-screen .hand-card.is-ready,
+  .app-shell.battle-screen .hand-card.selected,
+  .app-shell.battle-screen .lane-controls.is-armed button,
+  .app-shell.battle-screen .canvas-wrap.deploy-hit,
+  .play-launch .play-start,
+  .tactics-root .t-hand-card.is-ready,
+  .tactics-root .t-captain-actions > button.is-ready {
+    animation: none !important;
+  }
+}

@@ -5,4 +5,22 @@ const icon=(n,cls='')=>`<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none"
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sprite=(id,cls='')=>spriteMarkup(id,CARDS[id].name,cls);
 const card=(c,level=1,cls='',attrs='')=>`<button class="creature-card ${cls}" style="--card-color:${c.color}" ${attrs} aria-label="${c.name}, level ${level}, ${c.cost} elixir"><span class="card-top"><span class="cost">${c.cost}</span><span class="type">${c.symbol}</span></span>${sprite(c.id)}<span class="card-title">${c.name}</span><span class="card-bottom"><span>LV. ${level}</span><span>${c.air?'AIR':'GROUND'}</span></span></button>`;
+export function cardActionKind(c){
+ if(c.splash)return 'splash';
+ if(c.heal)return 'heal';
+ if(c.siege)return 'siege';
+ if(c.charge)return 'charge';
+ if(c.split)return 'split';
+ if(c.stun)return 'stun';
+ if(c.slow)return 'slow';
+ if(c.air)return 'air';
+ if(c.range>80)return 'ranged';
+ return 'melee';
+}
+export function handCard(c,level=1,{selected=false,ready=false,slot=0}={}){
+ const kind=cardActionKind(c);
+ const cls=`hand-card creature-card${selected?' selected is-active':''}${ready?' is-ready':' not-ready'}`;
+ const ability=c.ability||c.desc;
+ return `<button class="${cls}" style="--card-color:${c.color}" data-slot="${slot}" data-action-kind="${kind}" aria-pressed="${selected}" aria-label="${c.name}, level ${level}, ${c.cost} elixir, ${c.role}"><span class="card-top"><span class="cost">${c.cost}</span><span class="type">${c.symbol}</span></span><span class="card-fx" aria-hidden="true"></span>${sprite(c.id,selected?'sprite-acting':'')}<span class="card-role">${c.role}</span><span class="card-title">${c.name}</span><span class="card-bottom"><span>LV. ${level}</span><span>${c.air?'AIR':'GROUND'}</span></span><span class="card-ability">${ability}</span></button>`;
+}
 export {paths,icon,esc,sprite,card};

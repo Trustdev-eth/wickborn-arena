@@ -14,9 +14,9 @@ config.d1_databases=[{
 }];
 config.vars={
   ...(config.vars||{}),
-  SITE_ORIGIN:'https://wickborn.dillonking130.workers.dev',
-  REALTIME_URL:'https://wickborn-realtime.dillonking130.workers.dev',
-  CONTRACT_ADAPTER_URL:'https://wickborn-adapter.dillonking130.workers.dev',
+  SITE_ORIGIN:'https://wickborn.onchainme.workers.dev',
+  REALTIME_URL:'https://wickborn-realtime.onchainme.workers.dev',
+  CONTRACT_ADAPTER_URL:'https://wickborn-adapter.onchainme.workers.dev',
   GAME_PROGRAM_ID:'F9rRZiYeunm6ospKJUyD2kZ6NbBfLJKPxZyPUyDtPW8x',
   GAME_TOKEN_DECIMALS:'9',
   GAME_TOKEN_SYMBOL:'WICKB',
